@@ -47,17 +47,38 @@
 
     <nav class="bg-stone-100 border-b border-stone-200 sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
+            <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
                     <span class="text-lg sm:text-xl font-bold text-teal-800">PathoExplorer</span>
                     <span class="ml-2 text-sm text-stone-500 hidden sm:block">| Mediators of Inflammation</span>
                 </div>
-                <div class="flex space-x-4 sm:space-x-8 items-center text-sm sm:text-base" id="nav-container">
+                
+                <!-- Desktop Navigation Menu (hidden on mobile, visible on md+) -->
+                <div class="hidden md:flex space-x-8 items-center text-sm md:text-base" id="nav-container">
                     <button data-target="overview" class="tab-btn active-tab pb-1 text-stone-600 hover:text-teal-700 transition-colors">Overview</button>
                     <button data-target="pathways" class="tab-btn pb-1 text-stone-600 hover:text-teal-700 transition-colors">Pathways</button>
                     <button data-target="explorer" class="tab-btn pb-1 text-stone-600 hover:text-teal-700 transition-colors">Explorer</button>
+                    <button data-target="quiz" class="tab-btn pb-1 text-stone-600 hover:text-teal-700 transition-colors">Quiz</button>
                 </div>
+
+                <!-- Mobile Hamburger Button (3 lines) -->
+                <button id="mobile-menu-button" class="md:hidden flex items-center p-2 rounded-lg text-stone-600 hover:text-teal-700 hover:bg-stone-200/50 transition focus:outline-none" aria-label="Toggle menu">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="hamburger-icon">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                    <svg class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="close-icon">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
             </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown (hidden by default) -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-stone-200 bg-stone-50 px-4 py-3 space-y-2 shadow-inner">
+            <button data-target="overview" class="mobile-tab-btn block w-full text-left px-3 py-2 rounded-lg font-medium text-stone-700 hover:bg-stone-200 hover:text-teal-700 transition">Overview</button>
+            <button data-target="pathways" class="mobile-tab-btn block w-full text-left px-3 py-2 rounded-lg font-medium text-stone-700 hover:bg-stone-200 hover:text-teal-700 transition">Pathways</button>
+            <button data-target="explorer" class="mobile-tab-btn block w-full text-left px-3 py-2 rounded-lg font-medium text-stone-700 hover:bg-stone-200 hover:text-teal-700 transition">Explorer</button>
+            <button data-target="quiz" class="mobile-tab-btn block w-full text-left px-3 py-2 rounded-lg font-medium text-stone-700 hover:bg-stone-200 hover:text-teal-700 transition">Quiz</button>
         </div>
     </nav>
 
@@ -261,6 +282,57 @@
             </div>
         </section>
 
+        <section id="quiz" class="view-section hide">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-stone-800 mb-4">Mediator Quiz Challenge</h1>
+                <p class="text-lg text-stone-600 leading-relaxed bg-white p-6 rounded-lg shadow-sm border border-stone-100">
+                    Test your knowledge of inflammatory mediators, their cellular sources, biochemical pathways, and clinical applications. Select an option to check your answer and read the mechanism details.
+                </p>
+            </div>
+
+            <!-- Quiz Container -->
+            <div id="quiz-container" class="max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-md border border-stone-100 flex flex-col min-h-[420px]">
+                <!-- Progress & Score Header -->
+                <div class="flex justify-between items-center mb-6 text-sm">
+                    <span class="text-stone-500 font-medium">Question <span id="current-question-num" class="text-teal-700 font-bold">1</span> of <span id="total-questions-num">10</span></span>
+                    <span class="text-stone-500 font-medium">Score: <span id="quiz-score" class="text-teal-700 font-bold">0</span></span>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full bg-stone-100 h-2 rounded-full mb-8 overflow-hidden">
+                    <div id="quiz-progress-bar" class="bg-teal-600 h-full transition-all duration-300 w-0"></div>
+                </div>
+
+                <!-- Question Body -->
+                <div id="quiz-question-box" class="flex-grow flex flex-col justify-center">
+                    <h3 id="quiz-question-text" class="text-lg sm:text-xl font-bold text-stone-800 mb-6 leading-snug"></h3>
+                    <div id="quiz-options-container" class="space-y-3">
+                        <!-- Options generated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Feedback & Next Button -->
+                <div id="quiz-feedback-box" class="mt-8 hidden p-5 rounded-xl border flex flex-col space-y-3 transition-all duration-200">
+                    <div class="flex items-center space-x-2 font-bold" id="feedback-status">
+                        <!-- Correct/Incorrect badge -->
+                    </div>
+                    <p id="feedback-explanation" class="text-sm text-stone-600 leading-relaxed"></p>
+                    <button id="btn-next-question" class="self-end px-5 py-2.5 bg-teal-700 text-white font-medium rounded-lg hover:bg-teal-800 shadow transition text-sm sm:text-base">Next Question &rarr;</button>
+                </div>
+            </div>
+
+            <!-- Score Summary Screen -->
+            <div id="quiz-summary-container" class="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-md border border-stone-100 flex flex-col items-center justify-center min-h-[400px] text-center hidden">
+                <span class="text-6xl mb-4" id="summary-icon">🏆</span>
+                <h2 class="text-2xl font-bold text-stone-800 mb-2">Challenge Completed!</h2>
+                <p class="text-stone-600 mb-6">You scored <span id="final-score" class="font-bold text-teal-700">0</span> out of <span id="final-total" class="font-bold text-teal-700">10</span>.</p>
+                <div class="w-full max-w-md bg-stone-50 rounded-xl p-5 mb-8 text-sm text-stone-600 text-left border border-stone-100 space-y-2 leading-relaxed" id="summary-performance">
+                    <!-- Custom performance text -->
+                </div>
+                <button id="btn-restart-quiz" class="px-6 py-3 bg-teal-700 text-white font-medium rounded-lg hover:bg-teal-800 shadow transition text-sm sm:text-base">Try Again</button>
+            </div>
+        </section>
+
     </main>
 
     <script>
@@ -313,30 +385,105 @@
 
         let actionsChartInstance = null;
 
+        function switchTab(target) {
+            state.currentView = target;
+            
+            // Update desktop tabs
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                if (b.getAttribute('data-target') === target) {
+                    b.classList.add('active-tab');
+                    b.classList.remove('text-stone-600');
+                } else {
+                    b.classList.remove('active-tab');
+                    b.classList.add('text-stone-600');
+                }
+            });
+
+            // Update mobile tabs
+            document.querySelectorAll('.mobile-tab-btn').forEach(b => {
+                if (b.getAttribute('data-target') === target) {
+                    b.className = 'mobile-tab-btn block w-full text-left px-3 py-2 rounded-lg font-bold bg-teal-50 text-teal-800 border-l-4 border-teal-700 transition';
+                } else {
+                    b.className = 'mobile-tab-btn block w-full text-left px-3 py-2 rounded-lg font-medium text-stone-700 hover:bg-stone-200 hover:text-teal-700 transition';
+                }
+            });
+            
+            // Switch section visibility
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('hide'));
+            const targetEl = document.getElementById(target);
+            if (targetEl) {
+                targetEl.classList.remove('hide');
+            }
+
+            if (target === 'overview' && !actionsChartInstance) {
+                renderChart();
+            }
+            
+            // Close mobile menu if open
+            closeMobileMenu();
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const hamIcon = document.getElementById('hamburger-icon');
+            const closeIcon = document.getElementById('close-icon');
+            
+            if (menu) {
+                const isOpen = !menu.classList.contains('hidden');
+                if (isOpen) {
+                    closeMobileMenu();
+                } else {
+                    menu.classList.remove('hidden');
+                    hamIcon.classList.add('hidden');
+                    closeIcon.classList.remove('hidden');
+                }
+            }
+        }
+
+        function closeMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const hamIcon = document.getElementById('hamburger-icon');
+            const closeIcon = document.getElementById('close-icon');
+            
+            if (menu) {
+                menu.classList.add('hidden');
+            }
+            if (hamIcon) {
+                hamIcon.classList.remove('hidden');
+            }
+            if (closeIcon) {
+                closeIcon.classList.add('hidden');
+            }
+        }
+
         function initNavigation() {
+            // Setup Desktop Tab Click Handlers
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    document.querySelectorAll('.tab-btn').forEach(b => {
-                        b.classList.remove('active-tab');
-                        b.classList.add('text-stone-600');
-                    });
-                    e.target.classList.add('active-tab');
-                    e.target.classList.remove('text-stone-600');
-                    
                     const target = e.target.getAttribute('data-target');
-                    state.currentView = target;
-                    
-                    document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('hide'));
-                    document.getElementById(target).classList.remove('hide');
-
-                    if (target === 'overview' && !actionsChartInstance) {
-                        renderChart();
-                    }
+                    switchTab(target);
                 });
             });
 
+            // Setup Mobile Tab Click Handlers
+            document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const target = e.target.getAttribute('data-target');
+                    switchTab(target);
+                });
+            });
+
+            // Mobile menu button toggle
+            const menuBtn = document.getElementById('mobile-menu-button');
+            if (menuBtn) {
+                menuBtn.addEventListener('click', toggleMobileMenu);
+            }
+
             document.getElementById('btn-aa').addEventListener('click', () => switchPathway('aa'));
             document.getElementById('btn-comp').addEventListener('click', () => switchPathway('comp'));
+            
+            // Initial view setup
+            switchTab('overview');
         }
 
         function switchPathway(pathway) {
@@ -415,6 +562,9 @@
         };
 
         function renderChart() {
+            if (actionsChartInstance) {
+                return; // Prevent duplicate chart initialization and crashes
+            }
             const ctx = document.getElementById('actionsChart').getContext('2d');
             const dataCounts = [7, 3, 6, 3, 2];
             const labels = ['Vasodilation', 'Vasoconstriction', 'Permeability', 'Chemotaxis', 'Pain/Fever'];
@@ -512,14 +662,316 @@
                     renderExplorer();
                 });
             });
-
             renderExplorer();
+        }
+
+        const quizQuestions = [
+            {
+                q: "Which of the following mediators is preformed in mast cell granules and causes rapid vasodilation?",
+                o: ["Prostaglandins", "Histamine", "Leukotriene B4", "Bradykinin"],
+                a: 1,
+                exp: "Histamine is preformed and stored in mast cell granules, allowing for immediate release upon stimulation, leading to vascular dilation and permeability."
+            },
+            {
+                q: "Which enzyme is inhibited by corticosteroids to stop the entire arachidonic acid cascade?",
+                o: ["Cyclooxygenase", "5-Lipoxygenase", "Phospholipase A2", "Thromboxane Synthase"],
+                a: 2,
+                exp: "Corticosteroids block Phospholipase A2 (PLA2), preventing the initial cleavage of Arachidonic Acid from membrane phospholipids and stopping both COX and LOX pathways."
+            },
+            {
+                q: "What is the primary physiological action of Thromboxane A2 (TXA2)?",
+                o: ["Vasodilation and clotting inhibition", "Vasoconstriction and promoting platelet aggregation", "Chemotaxis of neutrophils", "Bronchodilation"],
+                a: 1,
+                exp: "Thromboxane A2 is released by platelets to cause vasoconstriction and promote platelet aggregation (clotting)."
+            },
+            {
+                q: "Which complement component is responsible for opsonization and enhancing phagocytosis?",
+                o: ["C3a", "C3b", "C5a", "MAC (C5b-C9)"],
+                a: 1,
+                exp: "C3b deposits directly on microbial surfaces, acting as an opsonin that helps phagocytes (neutrophils and macrophages) recognize and ingest the pathogen."
+            },
+            {
+                q: "Which mediator is primarily responsible for systemic pain and fever during inflammation?",
+                o: ["PGE2", "LTB4", "Histamine", "Lipoxin A4"],
+                a: 0,
+                exp: "Prostaglandin E2 (PGE2) acts on the hypothalamus to trigger fever and sensitizes pain receptors to other chemical stimuli."
+            },
+            {
+                q: "What role do Lipoxins (LXA4, LXB4) play in the inflammatory response?",
+                o: ["Amplify pain signals", "Cause bronchospasm", "Suppress inflammation and promote resolution", "Trigger complement activation"],
+                a: 2,
+                exp: "Lipoxins are unique metabolites of arachidonic acid that act as anti-inflammatory agents to resolve the response."
+            },
+            {
+                q: "What is the main trigger for the Classical Pathway of the Complement System?",
+                o: ["Antigen-Antibody complexes", "Microbial surface endotoxins/LPS", "Mannose-binding lectin on carbohydrates", "Trauma and heat"],
+                a: 0,
+                exp: "The Classical Pathway is antibody-dependent and activated when C1 binds to IgG or IgM antibodies already bound to an antigen."
+            },
+            {
+                q: "NSAIDs like Aspirin and Ibuprofen reduce pain and inflammation by inhibiting which pathway?",
+                o: ["Lipoxygenase (LOX)", "Cyclooxygenase (COX)", "Kinin cascade", "Complement cascade"],
+                a: 1,
+                exp: "NSAIDs block COX-1 and COX-2 enzymes, preventing the synthesis of inflammatory prostaglandins."
+            },
+            {
+                q: "Leukotrienes LTC4, LTD4, and LTE4 are major targets in asthma treatment because they cause:",
+                o: ["Severe bronchospasm and vasoconstriction", "Platelet aggregation", "Resolution of swelling", "Chemotaxis of red blood cells"],
+                a: 0,
+                exp: "Cysteinyl leukotrienes (C4, D4, E4) cause intense bronchoconstriction and are target areas for drugs like Montelukast."
+            },
+            {
+                q: "The Membrane Attack Complex (MAC) composed of C5b-C9 acts by:",
+                o: ["Binding histamine receptors", "Cleaving arachidonic acid", "Creating pores to cause cell lysis", "Stimulating nerve endings to cause pain"],
+                a: 2,
+                exp: "The MAC forms a hollow tube inserted into the microbial cell wall, leading to influx of water and osmotic lysis of the bacterium."
+            },
+            {
+                q: "Which mediator is synthesized by sensory nerves and transmits pain signals while promoting vascular permeability?",
+                o: ["Serotonin", "Histamine", "Neuropeptides (Substance P)", "Leukotriene B4"],
+                a: 2,
+                exp: "Substance P is a key neuropeptide released from sensory nerve endings that triggers pain sensation and drives vascular leakage."
+            },
+            {
+                q: "Which chemical mediator is released by platelets and causes vasoconstriction during vascular damage?",
+                o: ["Serotonin", "Histamine", "PGE2", "Bradykinin"],
+                a: 0,
+                exp: "Serotonin is stored in platelet dense granules and released during aggregation to cause local vasoconstriction."
+            },
+            {
+                q: "Which plasma system is activated by Hageman Factor (Factor XII) to release Bradykinin?",
+                o: ["Kinin System", "Complement System", "Cyclooxygenase Pathway", "Lipoxygenase Pathway"],
+                a: 0,
+                exp: "Factor XII activation initiates a cascade that converts prekallikrein to kallikrein, which then cleaves kininogens to release Bradykinin."
+            },
+            {
+                q: "What is the primary action of Bradykinin?",
+                o: ["Resolution of swelling", "Chemotaxis of neutrophils", "Bronchodilation", "Increased vascular permeability and pain"],
+                a: 3,
+                exp: "Bradykinin causes dilation of blood vessels, increases venule permeability, and stimulates sensory nerve endings to produce pain."
+            },
+            {
+                q: "Which mediator causes platelet aggregation, bronchoconstriction, and leukocyte adhesion, and is cell-derived?",
+                o: ["Platelet-Activating Factor (PAF)", "C3b", "Bradykinin", "Prostacyclin (PGI2)"],
+                a: 0,
+                exp: "PAF is a cell-derived phospholipid mediator that activates platelets and leukocytes, and triggers bronchoconstriction."
+            },
+            {
+                q: "How does Nitric Oxide (NO) act on vascular smooth muscle during inflammation?",
+                o: ["Causes vasoconstriction", "Causes vasodilation and smooth muscle relaxation", "Prevents histamine release", "Triggers clotting"],
+                a: 1,
+                exp: "Nitric Oxide is produced by endothelial cells (eNO) and macrophages (iNO) to relax vascular smooth muscle, causing vasodilation."
+            },
+            {
+                q: "Which cytokines are primarily responsible for inducing systemic acute-phase reactions like fever and leukocyte release from bone marrow?",
+                o: ["TNF and IL-1", "IL-10", "Chemokines", "Lipoxins"],
+                a: 0,
+                exp: "Tumor Necrosis Factor (TNF) and Interleukin-1 (IL-1) are major inflammatory cytokines driving systemic acute-phase responses."
+            },
+            {
+                q: "Chemokines are a family of small cytokines that primarily function to:",
+                o: ["Stimulate platelet clotting", "Directly lyse bacteria", "Stimulate leukocyte chemotaxis and migration", "Inhibit COX-2"],
+                a: 2,
+                exp: "Chemokines act as chemoattractants to recruit specific types of white blood cells to the site of inflammation."
+            },
+            {
+                q: "Which cell type is the principal source of Histamine during acute allergic and inflammatory reactions?",
+                o: ["Mast cells", "Neutrophils", "Hepatocytes", "Platelets"],
+                a: 0,
+                exp: "Mast cells, which are widely distributed in connective tissues, are the primary cell source of Histamine."
+            },
+            {
+                q: "Which molecule acts as a decoy/receptor blocker for Leukotriene receptors in the treatment of asthma?",
+                o: ["Aspirin", "Montelukast (Singulair)", "Zileuton", "Dexamethasone"],
+                a: 1,
+                exp: "Montelukast blocks the cysteinyl leukotriene 1 (CysLT1) receptor, preventing LTC4, LTD4, and LTE4 from causing bronchospasm."
+            },
+            {
+                q: "What is the main activation trigger for the Lectin Pathway of the complement system?",
+                o: ["Antigen-Antibody complexes", "Binding of plasma mannose-binding lectin to microbial carbohydrates", "Lipopolysaccharides on Gram-negative bacteria", "Collagen exposure"],
+                a: 1,
+                exp: "The Lectin Pathway is activated when mannose-binding lectin binds to terminal mannose residues on surface glycoproteins of microbes."
+            },
+            {
+                q: "What occurs when the body lacks regulatory proteins like C1 inhibitor?",
+                o: ["Complete failure of clotting", "Hereditary Angioedema due to overactivation", "Autoimmune diabetes", "Loss of all opsonization"],
+                a: 1,
+                exp: "Absence of C1 inhibitor leads to uncontrolled activation of the complement and kinin pathways, causing Hereditary Angioedema."
+            },
+            {
+                q: "Which mediator is synthesized de novo from cell membrane arachidonic acid and inhibits platelet aggregation?",
+                o: ["Thromboxane A2", "Prostacyclin (PGI2)", "Leukotriene B4", "Serotonin"],
+                a: 1,
+                exp: "Prostacyclin (PGI2) is produced by vascular endothelial cells to vasodilate and prevent platelet aggregation."
+            },
+            {
+                q: "In the resolution of inflammation, which of the following is considered an anti-inflammatory cytokine?",
+                o: ["IL-1", "TNF", "IL-10", "IL-6"],
+                a: 2,
+                exp: "IL-10 and TGF-beta are key anti-inflammatory cytokines that downregulate macrophage activation and help resolve inflammation."
+            },
+            {
+                q: "Which component of the complement system acts as a potent anaphylatoxin AND a strong chemoattractant for neutrophils?",
+                o: ["C5a", "C3b", "C9", "C1q"],
+                a: 0,
+                exp: "C5a is highly chemotactic for white blood cells and triggers histamine release from mast cells (anaphylatoxin activity)."
+            }
+        ];
+
+        let quizState = {
+            currentQuestion: 0,
+            score: 0,
+            hasAnswered: false
+        };
+
+        function initQuiz() {
+            quizState.currentQuestion = 0;
+            quizState.score = 0;
+            quizState.hasAnswered = false;
+
+            document.getElementById('total-questions-num').innerText = quizQuestions.length;
+            
+            // Avoid adding duplicate event listeners if initialized multiple times
+            const btnNext = document.getElementById('btn-next-question');
+            btnNext.replaceWith(btnNext.cloneNode(true));
+            document.getElementById('btn-next-question').addEventListener('click', nextQuestion);
+
+            const btnRestart = document.getElementById('btn-restart-quiz');
+            btnRestart.replaceWith(btnRestart.cloneNode(true));
+            document.getElementById('btn-restart-quiz').addEventListener('click', restartQuiz);
+
+            renderQuizQuestion();
+        }
+
+        function renderQuizQuestion() {
+            quizState.hasAnswered = false;
+            
+            const feedbackBox = document.getElementById('quiz-feedback-box');
+            feedbackBox.classList.add('hidden');
+
+            const current = quizQuestions[quizState.currentQuestion];
+            document.getElementById('current-question-num').innerText = quizState.currentQuestion + 1;
+            document.getElementById('quiz-score').innerText = quizState.score;
+            document.getElementById('quiz-question-text').innerText = current.q;
+
+            const progressPercent = ((quizState.currentQuestion) / quizQuestions.length) * 100;
+            document.getElementById('quiz-progress-bar').style.width = progressPercent + '%';
+
+            const optionsContainer = document.getElementById('quiz-options-container');
+            optionsContainer.innerHTML = '';
+
+            current.o.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-4 rounded-xl border border-stone-200 hover:border-teal-500 hover:bg-stone-50 font-medium transition flex items-center justify-between group text-sm sm:text-base';
+                btn.innerHTML = '<span>' + opt + '</span><span class="shrink-0 w-6 h-6 rounded-full border border-stone-300 flex items-center justify-center text-xs text-transparent group-hover:border-teal-500 font-bold">&bull;</span>';
+                btn.addEventListener('click', () => handleOptionClick(idx, btn));
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function handleOptionClick(selectedIdx, selectedBtn) {
+            if (quizState.hasAnswered) return;
+            quizState.hasAnswered = true;
+
+            const current = quizQuestions[quizState.currentQuestion];
+            const optionsContainer = document.getElementById('quiz-options-container');
+            const buttons = optionsContainer.querySelectorAll('button');
+
+            buttons.forEach((btn, idx) => {
+                btn.classList.remove('hover:border-teal-500', 'hover:bg-stone-50');
+                btn.style.cursor = 'default';
+                
+                const dot = btn.querySelector('span:last-child');
+                
+                if (idx === current.a) {
+                    btn.classList.add('border-emerald-500', 'bg-emerald-50/50', 'text-emerald-950');
+                    dot.className = 'shrink-0 w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold';
+                    dot.innerHTML = '&#10003;';
+                } else if (idx === selectedIdx) {
+                    btn.classList.add('border-rose-500', 'bg-rose-50/50', 'text-rose-950');
+                    dot.className = 'shrink-0 w-6 h-6 rounded-full bg-rose-500 text-white flex items-center justify-center text-xs font-bold';
+                    dot.innerHTML = '&#10007;';
+                } else {
+                    btn.classList.add('opacity-60');
+                }
+            });
+
+            const isCorrect = selectedIdx === current.a;
+            if (isCorrect) {
+                quizState.score++;
+                document.getElementById('quiz-score').innerText = quizState.score;
+            }
+
+            const feedbackBox = document.getElementById('quiz-feedback-box');
+            const statusBox = document.getElementById('feedback-status');
+            const explanationBox = document.getElementById('feedback-explanation');
+
+            feedbackBox.classList.remove('hidden');
+            
+            if (isCorrect) {
+                feedbackBox.className = 'mt-8 p-5 rounded-xl border border-emerald-200 bg-emerald-50/30 flex flex-col space-y-2';
+                statusBox.innerHTML = '<span class="text-emerald-700 flex items-center gap-1.5"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> Correct Answer!</span>';
+            } else {
+                feedbackBox.className = 'mt-8 p-5 rounded-xl border border-rose-200 bg-rose-50/30 flex flex-col space-y-2';
+                statusBox.innerHTML = '<span class="text-rose-700 flex items-center gap-1.5"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg> Incorrect</span>';
+            }
+
+            explanationBox.innerHTML = '<strong>Mechanism:</strong> ' + current.exp;
+            
+            if (window.innerWidth < 768) {
+                feedbackBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        function nextQuestion() {
+            quizState.currentQuestion++;
+            if (quizState.currentQuestion < quizQuestions.length) {
+                renderQuizQuestion();
+            } else {
+                showQuizSummary();
+            }
+        }
+
+        function showQuizSummary() {
+            document.getElementById('quiz-progress-bar').style.width = '100%';
+            document.getElementById('quiz-container').classList.add('hidden');
+            
+            const summaryContainer = document.getElementById('quiz-summary-container');
+            summaryContainer.classList.remove('hidden');
+
+            document.getElementById('final-score').innerText = quizState.score;
+            document.getElementById('final-total').innerText = quizQuestions.length;
+
+            const icon = document.getElementById('summary-icon');
+            const performance = document.getElementById('summary-performance');
+
+            let message = '';
+            if (quizState.score === quizQuestions.length) {
+                icon.innerText = '👑';
+                message = '<p class="font-bold text-emerald-800 text-base mb-1">Perfect Pathology Score!</p><p>You are an expert on the chemical mediators of inflammation. You fully understand the cascades, cellular sources, and clinical applications.</p>';
+            } else if (quizState.score >= 7) {
+                icon.innerText = '🧠';
+                message = '<p class="font-bold text-teal-800 text-base mb-1">Excellent Job!</p><p>You have a strong grasp of the topic. Reviewing the Arachidonic Acid and Complement pathways one more time will make you flawless.</p>';
+            } else if (quizState.score >= 5) {
+                icon.innerText = '📚';
+                message = '<p class="font-bold text-stone-800 text-base mb-1">Good Effort!</p><p>You have a passing understanding of the basic concepts. Try re-reading the Explorer descriptions and reviewing pathway click-details to improve.</p>';
+            } else {
+                icon.innerText = '⚡';
+                message = '<p class="font-bold text-rose-800 text-base mb-1">Need More Study</p><p>Inflammation is complex with many overlapping cascades. We recommend reviewing the overview and pathway diagrams before retaking this quiz.</p>';
+            }
+            performance.innerHTML = message;
+        }
+
+        function restartQuiz() {
+            document.getElementById('quiz-summary-container').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            initQuiz();
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             initNavigation();
             initExplorer();
-            renderChart();
+            initQuiz();
         });
     </script>
     <!-- Modern Bottom Sheet Modal for Mobile Details -->
