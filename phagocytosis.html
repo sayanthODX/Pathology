@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PathoExplorer: Phagocytosis & Clearance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 35vh; max-height: 350px; }
+        @media (min-width: 768px) { .chart-container { height: 350px; } }
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background-color: #f8fafc; color: #334155; }
+        .pathway-node { transition: all 0.2s ease-in-out; }
+        .pathway-node:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .hide { display: none !important; }
+        .active-tab { border-bottom: 3px solid #0284c7; color: #0284c7; font-weight: 700; }
+        .active-mobile-tab { background-color: #f0f9ff; color: #0369a1; border-left: 4px solid #0284c7; font-weight: 700; }
+        .formula sub, .formula sup { font-size: 0.75em; line-height: 0; position: relative; vertical-align: baseline; }
+        .formula sub { bottom: -0.25em; }
+        .formula sup { top: -0.5em; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    </style>
+</head>
+<body class="antialiased flex flex-col min-h-screen">
+
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center gap-2">
+                        <span class="text-2xl font-black text-sky-700">&#10022;</span>
+                        <span class="text-xl font-bold text-slate-800 tracking-tight">PathoExplorer</span>
+                    </div>
+                    <span class="ml-4 text-sm font-medium text-slate-500 hidden md:block border-l border-slate-300 pl-4">Phagocytosis & Clearance</span>
+                </div>
+                
+                <!-- Desktop Navigation Menu -->
+                <div class="hidden md:flex space-x-6 items-center text-sm md:text-base" id="nav-container">
+                    <button data-target="overview" class="tab-btn active-tab pb-1 text-slate-600 hover:text-sky-600 transition-colors">1. Overview</button>
+                    <button data-target="recognition" class="tab-btn pb-1 text-slate-600 hover:text-sky-600 transition-colors">2. Recognition</button>
+                    <button data-target="engulfment" class="tab-btn pb-1 text-slate-600 hover:text-sky-600 transition-colors">3. Engulfment</button>
+                    <button data-target="killing" class="tab-btn pb-1 text-slate-600 hover:text-sky-600 transition-colors">4. Intracellular Killing</button>
+                    <button data-target="quiz" class="tab-btn pb-1 text-slate-600 hover:text-sky-600 transition-colors">5. Quiz</button>
+                </div>
+
+                <!-- Mobile Hamburger Button -->
+                <button id="mobile-menu-button" class="md:hidden flex items-center p-2 rounded-lg text-slate-600 hover:text-sky-700 hover:bg-slate-100 transition focus:outline-none" aria-label="Toggle menu">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="hamburger-icon">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                    <svg class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="close-icon">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-200 bg-stone-50 px-4 py-3 space-y-2 shadow-inner">
+            <button data-target="overview" class="mobile-tab-btn block w-full text-left px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-slate-200 hover:text-sky-700 transition">1. Overview</button>
+            <button data-target="recognition" class="mobile-tab-btn block w-full text-left px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-slate-200 hover:text-sky-700 transition">2. Recognition</button>
+            <button data-target="engulfment" class="mobile-tab-btn block w-full text-left px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-slate-200 hover:text-sky-700 transition">3. Engulfment</button>
+            <button data-target="killing" class="mobile-tab-btn block w-full text-left px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-slate-200 hover:text-sky-700 transition">4. Intracellular Killing</button>
+            <button data-target="quiz" class="mobile-tab-btn block w-full text-left px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-slate-200 hover:text-sky-700 transition">5. Quiz</button>
+        </div>
+    </nav>
+
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+        <section id="overview" class="view-section animate-fade-in">
+            <div class="mb-8 max-w-4xl">
+                <h1 class="text-3xl font-extrabold text-slate-900 mb-4">Leukocyte Activation & Phagocytosis</h1>
+                <p class="text-lg text-slate-600 leading-relaxed bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                    This section introduces the foundational concepts of phagocytosis based on Elie Metchnikoff's initial findings. When recruited leukocytes (mainly <strong>neutrophils and macrophages</strong>) encounter microbes or dead cells, they undergo activation. The most critical functional response is phagocytosis—the sequential process of ingesting and destroying particulate material. Interact with the key steps below to understand the overarching sequence before diving into biochemical specifics.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-8">
+                <div class="p-6 bg-slate-50 border-b border-slate-200">
+                    <h2 class="text-xl font-bold text-slate-800 text-center">The 3 Key Steps of Phagocytosis</h2>
+                    <p class="text-center text-sm text-slate-500 mt-1">Click each sequential phase to explore its physiological mechanisms.</p>
+                </div>
+                
+                <div class="flex flex-col md:flex-row border-b border-slate-100">
+                    <button class="step-btn flex-1 py-4 px-6 text-center border-b-4 border-sky-500 bg-sky-50 transition-colors" data-step="1">
+                        <span class="block text-2xl mb-1">&#128269;</span>
+                        <span class="font-bold text-sky-900">1. Recognition & Attachment</span>
+                    </button>
+                    <button class="step-btn flex-1 py-4 px-6 text-center border-b-4 border-transparent hover:bg-slate-50 transition-colors" data-step="2">
+                        <span class="block text-2xl mb-1">&#129430;</span>
+                        <span class="font-bold text-slate-600">2. Engulfment</span>
+                    </button>
+                    <button class="step-btn flex-1 py-4 px-6 text-center border-b-4 border-transparent hover:bg-slate-50 transition-colors" data-step="3">
+                        <span class="block text-2xl mb-1">&#9763;</span>
+                        <span class="font-bold text-slate-600">3. Killing & Degradation</span>
+                    </button>
+                </div>
+
+                <div class="p-8 min-h-[250px] flex items-center" id="step-content-container">
+                    <div id="step-1-content" class="step-content w-full">
+                        <h3 class="text-2xl font-bold text-sky-800 mb-3">Recognition and Attachment</h3>
+                        <p class="text-slate-700 text-lg leading-relaxed">
+                            Leukocytes must accurately identify the injurious agent before ingestion. They express specialized surface receptors that detect microbial molecular patterns (like TLRs and Mannose receptors) or host proteins called <strong>opsonins</strong> that coat the microbe (like IgG and C3b).
+                        </p>
+                    </div>
+                    <div id="step-2-content" class="step-content w-full hide">
+                        <h3 class="text-2xl font-bold text-slate-800 mb-3">Engulfment</h3>
+                        <p class="text-slate-700 text-lg leading-relaxed">
+                            Following attachment, actin polymerization drives the extension of cellular <strong>pseudopods</strong> around the microbe. These pseudopods fuse to form an intracellular vacuole called a <strong>phagosome</strong>, which subsequently fuses with lysosomes to form the <strong>phagolysosome</strong>.
+                        </p>
+                    </div>
+                    <div id="step-3-content" class="step-content w-full hide">
+                        <h3 class="text-2xl font-bold text-slate-800 mb-3">Killing and Degradation</h3>
+                        <p class="text-slate-700 text-lg leading-relaxed">
+                            Within the acidic environment of the phagolysosome, the ingested material is destroyed by highly reactive oxygen species (ROS), reactive nitrogen species (RNS), and potent lysosomal enzymes (like myeloperoxidase and acid hydrolases).
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-rose-50 border-l-4 border-rose-500 p-6 rounded-r-lg shadow-sm">
+                <div class="flex items-start">
+                    <span class="text-rose-500 text-2xl mr-4">&#9888;</span>
+                    <div>
+                        <h3 class="text-lg font-bold text-rose-900">Clinical Pathology Highlight: Leukocyte Adhesion Deficiency (LAD)</h3>
+                        <p class="mt-2 text-rose-800">
+                            An autosomal recessive disorder characterized by defects in leukocyte adhesion molecules. Neutrophils cannot exit the circulation to reach the site of infection. 
+                            <strong>Hallmark signs:</strong> Marked leukocytosis (high WBC count in blood) and increased susceptibility to severe infections.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="recognition" class="view-section hide animate-fade-in">
+            <div class="mb-6 max-w-4xl">
+                <h1 class="text-3xl font-extrabold text-slate-900 mb-4">Receptors & Opsonization</h1>
+                <p class="text-lg text-slate-600 leading-relaxed bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                    Phagocytes rely on specific receptors to distinguish foreign material from healthy self-tissue. This section breaks down the primary phagocytic receptors and explores <strong>Opsonins</strong>—host proteins that coat microbes to massively amplify phagocytic efficiency. Review the table to map specific opsonins to their corresponding leukocyte receptors.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800 mb-4 border-b border-slate-200 pb-2">Primary Phagocytic Receptors</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:border-sky-400 transition-colors">
+                            <h4 class="font-bold text-sky-800">Toll-like Receptors (TLRs)</h4>
+                            <p class="text-sm text-slate-600 mt-1">Detect specific microbial molecular products.</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:border-sky-400 transition-colors">
+                            <h4 class="font-bold text-sky-800">GPCRs</h4>
+                            <p class="text-sm text-slate-600 mt-1">Recognize bacterial N-formyl methionine residues.</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:border-sky-400 transition-colors">
+                            <h4 class="font-bold text-sky-800">Mannose Receptors</h4>
+                            <p class="text-sm text-slate-600 mt-1">Bind terminal mannose/fucose on microbial cell walls.</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:border-sky-400 transition-colors">
+                            <h4 class="font-bold text-sky-800">Scavenger Receptors</h4>
+                            <p class="text-sm text-slate-600 mt-1">Ingest modified LDL particles and a variety of microbes.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-6">
+                    <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="bg-slate-100 px-4 py-3 border-b border-slate-200 font-bold text-slate-800">
+                            Table 3.6: Opsonins & Corresponding Receptors
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-slate-600 min-w-[400px]">
+                                <thead class="bg-slate-50 text-slate-700">
+                                    <tr>
+                                        <th class="px-4 py-3 border-b border-slate-200">Opsonin (Coats Microbe)</th>
+                                        <th class="px-4 py-3 border-b border-slate-200">Receptor on Leukocyte</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="hover:bg-slate-50 border-b border-slate-100">
+                                        <td class="px-4 py-3 font-semibold text-slate-800">IgG Antibodies</td>
+                                        <td class="px-4 py-3 font-mono text-sky-700">Fc receptor (Fc&gamma;RI)</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50 border-b border-slate-100">
+                                        <td class="px-4 py-3 font-semibold text-slate-800">Complement (C3b, iC3b)</td>
+                                        <td class="px-4 py-3 font-mono text-sky-700">Type 1 & 3 receptors (CR1, CR3)</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50 border-b border-slate-100">
+                                        <td class="px-4 py-3 font-semibold text-slate-800">Collectins</td>
+                                        <td class="px-4 py-3 font-mono text-sky-700">C1q</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="px-4 py-3 font-semibold text-slate-800">Acute phase proteins (CRP)</td>
+                                        <td class="px-4 py-3 font-mono text-sky-700">Various receptors</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="bg-rose-50 border border-rose-200 p-5 rounded-lg shadow-sm">
+                        <h3 class="font-bold text-rose-900 mb-1">Clinical Correlate: Bruton Disease</h3>
+                        <p class="text-sm text-rose-800">
+                            A genetic defect in B-cell maturation leading to absent immunoglobulin (antibody) production. Consequently, there is <strong>defective opsonization</strong>, leaving the patient highly susceptible to infections.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="engulfment" class="view-section hide animate-fade-in">
+            <div class="mb-6 max-w-4xl">
+                <h1 class="text-3xl font-extrabold text-slate-900 mb-4">Engulfment Mechanics</h1>
+                <p class="text-lg text-slate-600 leading-relaxed bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                    Engulfment is an active physical process driven by cytoskeletal rearrangements. The cell membrane flows around the opsonized particle to internalize it. The subsequent fusion with lysosomes is crucial for exposing the microbe to destructive enzymes. Review the physical steps below, followed by a critical genetic defect that interrupts this process.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-lg shadow-sm border-t-4 border-sky-500 border-x border-b border-slate-200">
+                    <div class="text-4xl mb-3 text-sky-500 font-serif">&#8635;</div>
+                    <h3 class="font-bold text-lg text-slate-800 mb-2">1. Actin Polymerization</h3>
+                    <p class="text-sm text-slate-600">Receptor binding triggers rapid actin filament polymerization, pushing the plasma membrane to form extensions called <strong>pseudopods</strong>.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-sm border-t-4 border-indigo-500 border-x border-b border-slate-200">
+                    <div class="text-4xl mb-3 text-indigo-500 font-serif">&#9711;</div>
+                    <h3 class="font-bold text-lg text-slate-800 mb-2">2. Phagosome Formation</h3>
+                    <p class="text-sm text-slate-600">Pseudopods "zipper" around the microbe and pinch off from the membrane, forming an intracellular vacuole called the <strong>phagosome</strong>.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-sm border-t-4 border-purple-500 border-x border-b border-slate-200">
+                    <div class="text-4xl mb-3 text-purple-500 font-serif">&#10045;</div>
+                    <h3 class="font-bold text-lg text-slate-800 mb-2">3. Phagolysosome Fusion</h3>
+                    <p class="text-sm text-slate-600">The phagosome fuses with cytoplasmic lysosomes. Granules discharge hydrolytic enzymes into the new <strong>phagolysosome</strong>, activated by acidic pH.</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 text-slate-100 p-8 rounded-xl shadow-lg relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 text-rose-500 opacity-20 text-9xl leading-none font-serif font-bold">&#9888;</div>
+                <h2 class="text-2xl font-bold text-white mb-4 relative z-10">High-Yield Clinical: Chédiak-Higashi Syndrome</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+                    <div>
+                        <p class="text-slate-300 mb-4">An autosomal recessive condition characterized by severe defects in phagolysosome function.</p>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-start"><span class="text-rose-400 mr-2">&#10006;</span> <strong>Mutation:</strong> LYST gene (Lysosomal Trafficking Regulator).</li>
+                            <li class="flex items-start"><span class="text-rose-400 mr-2">&#10006;</span> <strong>Mechanism:</strong> Defective fusion of phagosomes with lysosomes.</li>
+                            <li class="flex items-start"><span class="text-rose-400 mr-2">&#10006;</span> <strong>Result:</strong> Delayed microbial killing, neutropenia, defective degranulation.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-800 p-5 rounded-lg border border-slate-700">
+                        <h4 class="font-bold text-sky-400 mb-2 border-b border-slate-600 pb-1">Pathognomonic Finding</h4>
+                        <p class="text-sm text-slate-300">
+                            <strong>Giant granules</strong> in leukocytes observable on a peripheral blood smear. These occur due to aberrant, premature fusion of lysosomal granules during leukocyte maturation. Bleeding disorders also occur due to defects in platelet dense granules.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="killing" class="view-section hide animate-fade-in">
+            <div class="mb-6 max-w-4xl">
+                <h1 class="text-3xl font-extrabold text-slate-900 mb-4">Intracellular Killing & Degradation</h1>
+                <p class="text-lg text-slate-600 leading-relaxed bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                    This section maps the biochemical cascades responsible for pathogen destruction. The most potent microbicidal systems are oxygen-dependent (ROS and RNS). First, compare the relative reactivity of different ROS using the chart. Then, interact with the flowchart to trace the enzymes and chemical products of the Respiratory Burst and Nitric Oxide pathways.
+                </p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-8">
+                <div class="flex flex-col lg:flex-row items-center gap-8">
+                    <div class="w-full lg:w-1/3">
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">Reactivity of ROS</h3>
+                        <p class="text-sm text-slate-600 mb-4">
+                            Not all Reactive Oxygen Species are equally destructive. Superoxide and Hydrogen Peroxide are relatively weak intermediates. The ultimate goal of the respiratory burst is to convert them into highly toxic endpoints like Hypochlorite and Hydroxyl radicals.
+                        </p>
+                        <p class="text-xs text-slate-400 italic border-t border-slate-100 pt-2">Data source: Textbook Table 3.7</p>
+                    </div>
+                    <div class="w-full lg:w-2/3">
+                        <div class="chart-container">
+                            <canvas id="rosChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col lg:flex-row mb-8">
+                <div class="w-full lg:w-[55%] p-6 bg-slate-50 border-b lg:border-b-0 lg:border-r border-slate-200">
+                    <h3 class="text-lg font-bold text-center mb-6 text-slate-800">The Respiratory Burst & NO Pathways</h3>
+                    
+                    <!-- Mobile helper to indicate swipeable diagram -->
+                    <div class="lg:hidden text-center text-xs text-slate-500 mb-3 flex items-center justify-center space-x-1 animate-pulse">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                        <span>Swipe horizontally to view full pathway diagram</span>
+                    </div>
+
+                    <div class="overflow-x-auto pb-4">
+                        <div class="min-w-[450px] flex flex-col items-center select-none font-medium pb-2">
+                            <div class="flex w-full justify-center space-x-8 items-start">
+                                
+                                <div class="flex flex-col items-center w-1/2">
+                                    <div class="px-4 py-2 bg-white border border-slate-300 rounded shadow-sm text-slate-700 text-sm">Molecular Oxygen (O<sub class="formula">2</sub>)</div>
+                                    <div class="text-slate-400 my-1">&#8595;</div>
+                                    <div class="pathway-node cursor-pointer px-3 py-1.5 bg-amber-100 text-amber-900 text-sm border border-amber-300 rounded-full font-bold shadow-sm" onclick="showPathDetail('nadph')">
+                                        NADPH Oxidase
+                                    </div>
+                                    <div class="text-slate-400 my-1">&#8595;</div>
+                                    <div class="pathway-node cursor-pointer p-3 bg-white border-2 border-amber-400 rounded-lg shadow text-center w-36" onclick="showPathDetail('superoxide')">
+                                        <span class="block text-amber-600 font-bold text-sm">Superoxide Anion</span>
+                                        <span class="text-xs font-mono">O<sub class="formula">2</sub><sup class="formula">&bull;-</sup></span>
+                                    </div>
+                                    
+                                    <div class="flex w-full mt-2 relative justify-center">
+                                        <div class="w-px h-8 bg-slate-300 absolute left-1/2 -ml-px"></div>
+                                    </div>
+                                    
+                                    <div class="mt-8 pathway-node cursor-pointer px-3 py-1.5 bg-amber-100 text-amber-900 text-sm border border-amber-300 rounded-full font-bold shadow-sm z-10" onclick="showPathDetail('sod')">
+                                        Superoxide Dismutase
+                                    </div>
+                                    <div class="text-slate-400 my-1">&#8595;</div>
+                                    <div class="pathway-node cursor-pointer p-3 bg-white border-2 border-orange-400 rounded-lg shadow text-center w-36" onclick="showPathDetail('h2o2')">
+                                        <span class="block text-orange-600 font-bold text-sm">Hydrogen Peroxide</span>
+                                        <span class="text-xs font-mono">H<sub class="formula">2</sub>O<sub class="formula">2</sub></span>
+                                    </div>
+                                    
+                                    <div class="flex w-full justify-center space-x-6 mt-2">
+                                        <div class="flex flex-col items-center">
+                                            <div class="text-slate-400 my-1">&#8595;</div>
+                                            <div class="pathway-node cursor-pointer px-2 py-1 bg-red-100 text-red-900 text-xs border border-red-300 rounded-full font-bold shadow-sm text-center w-20 leading-tight" onclick="showPathDetail('mpo')">
+                                                MPO + Cl<sup class="formula">-</sup>
+                                            </div>
+                                            <div class="text-slate-400 my-1">&#8595;</div>
+                                            <div class="pathway-node cursor-pointer p-2 bg-red-50 border-2 border-red-500 rounded shadow text-center w-24" onclick="showPathDetail('hocl')">
+                                                <span class="block text-red-700 font-bold text-xs">Hypochlorite</span>
+                                                <span class="text-xs font-mono">OCl<sup class="formula">-</sup></span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex flex-col items-center">
+                                            <div class="text-slate-400 my-1">&#8595;</div>
+                                            <div class="pathway-node cursor-pointer px-2 py-1 bg-stone-100 text-stone-700 text-xs border border-stone-300 rounded-full font-bold shadow-sm text-center w-20 leading-tight" onclick="showPathDetail('fenton')">
+                                                Fenton (+Fe<sup class="formula">2+</sup>)
+                                            </div>
+                                            <div class="text-slate-400 my-1">&#8595;</div>
+                                            <div class="pathway-node cursor-pointer p-2 bg-stone-50 border-2 border-stone-500 rounded shadow text-center w-24" onclick="showPathDetail('oh')">
+                                                <span class="block text-stone-700 font-bold text-xs">Hydroxyl Rad.</span>
+                                                <span class="text-xs font-mono">OH<sup class="formula">&bull;</sup></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex flex-col items-center w-1/2 pl-4 border-l border-slate-200">
+                                    <div class="px-4 py-2 bg-white border border-slate-300 rounded shadow-sm text-slate-700 text-sm">L-Arginine</div>
+                                    <div class="text-slate-400 my-1">&#8595;</div>
+                                    <div class="pathway-node cursor-pointer px-3 py-1.5 bg-purple-100 text-purple-900 text-sm border border-purple-300 rounded-full font-bold shadow-sm text-center leading-tight" onclick="showPathDetail('inos')">
+                                        iNOS<br><span class="text-[10px] font-normal text-purple-700">Activated by IFN-&gamma;</span>
+                                    </div>
+                                    <div class="text-slate-400 my-1">&#8595;</div>
+                                    <div class="pathway-node cursor-pointer p-3 bg-white border-2 border-purple-400 rounded-lg shadow text-center w-36" onclick="showPathDetail('no')">
+                                        <span class="block text-purple-600 font-bold text-sm">Nitric Oxide</span>
+                                        <span class="text-xs font-mono">NO<sup class="formula">&bull;</sup></span>
+                                    </div>
+                                    
+                                    <div class="flex flex-col items-center mt-12 w-full">
+                                        <div class="text-xs text-slate-500 mb-1 italic text-center">Reacts with Superoxide</div>
+                                        <div class="text-slate-400">&#8595;</div>
+                                        <div class="pathway-node cursor-pointer p-3 bg-rose-50 border-2 border-rose-600 rounded-lg shadow text-center w-40" onclick="showPathDetail('onoo')">
+                                            <span class="block text-rose-700 font-bold text-base">Peroxynitrite</span>
+                                            <span class="text-sm font-mono text-rose-600 font-bold">ONOO<sup class="formula">-</sup></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="w-full lg:w-[45%] p-6 bg-white flex flex-col justify-center min-h-[300px]" id="path-detail-panel">
+                    <div class="text-center text-slate-400">
+                        <span class="text-5xl block mb-4">&#9757;</span>
+                        <p class="text-lg">Click any node in the biochemical pathway to view enzymatic mechanisms and physiological effects.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-slate-100 border border-slate-300 rounded-lg p-6">
+                <h4 class="font-bold text-slate-800 mb-2 text-lg">Nonoxidative Mechanisms (Leukocyte Granules)</h4>
+                <p class="text-base text-slate-700 leading-relaxed">
+                    While ROS and RNS are extremely potent, leukocytes also utilize oxygen-independent methods. <strong>Lysosomal acid hydrolases</strong> digest dead microbes within the acidic environment of the phagolysosome, while various granule proteins (proteases, antimicrobial peptides) degrade bacterial structures directly.
+                </p>
+            </div>
+        </section>
+
+        <!-- Quiz Section -->
+        <section id="quiz" class="view-section hide animate-fade-in">
+            <div class="mb-8 max-w-4xl">
+                <h1 class="text-3xl font-extrabold text-slate-900 mb-4">Phagocytosis Quiz Challenge</h1>
+                <p class="text-lg text-slate-600 leading-relaxed bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                    Test your knowledge of opsonization, engulfment mechanics, lysosomal trafficking, and the biochemistries of reactive oxygen/nitrogen species. Select your answers to check explanations immediately.
+                </p>
+            </div>
+
+            <!-- Quiz Container -->
+            <div id="quiz-container" class="max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-md border border-slate-200 flex flex-col min-h-[420px]">
+                <!-- Progress & Score Header -->
+                <div class="flex justify-between items-center mb-6 text-sm">
+                    <span class="text-slate-500 font-medium">Question <span id="current-question-num" class="text-sky-700 font-bold">1</span> of <span id="total-questions-num">25</span></span>
+                    <span class="text-slate-500 font-medium">Score: <span id="quiz-score" class="text-sky-700 font-bold">0</span></span>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full bg-slate-100 h-2 rounded-full mb-8 overflow-hidden">
+                    <div id="quiz-progress-bar" class="bg-sky-600 h-full transition-all duration-300 w-0"></div>
+                </div>
+
+                <!-- Question Body -->
+                <div id="quiz-question-box" class="flex-grow flex flex-col justify-center">
+                    <h3 id="quiz-question-text" class="text-lg sm:text-xl font-bold text-slate-800 mb-6 leading-snug"></h3>
+                    <div id="quiz-options-container" class="space-y-3">
+                        <!-- Options generated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Feedback & Next Button -->
+                <div id="quiz-feedback-box" class="mt-8 hidden p-5 rounded-xl border flex flex-col space-y-3 transition-all duration-200">
+                    <div class="flex items-center space-x-2 font-bold" id="feedback-status">
+                        <!-- Correct/Incorrect badge -->
+                    </div>
+                    <p id="feedback-explanation" class="text-sm text-slate-600 leading-relaxed"></p>
+                    <button id="btn-next-question" class="self-end px-5 py-2.5 bg-sky-700 text-white font-medium rounded-lg hover:bg-sky-800 shadow transition text-sm sm:text-base">Next Question &rarr;</button>
+                </div>
+            </div>
+
+            <!-- Score Summary Screen -->
+            <div id="quiz-summary-container" class="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-md border border-slate-200 flex flex-col items-center justify-center min-h-[400px] text-center hidden">
+                <span class="text-6xl mb-4" id="summary-icon">🏆</span>
+                <h2 class="text-2xl font-bold text-slate-800 mb-2">Challenge Completed!</h2>
+                <p class="text-slate-600 mb-6">You scored <span id="final-score" class="font-bold text-sky-700">0</span> out of <span id="final-total" class="font-bold text-sky-700">25</span>.</p>
+                <div class="w-full max-w-md bg-slate-50 rounded-xl p-5 mb-8 text-sm text-slate-600 text-left border border-slate-200 space-y-2 leading-relaxed" id="summary-performance">
+                    <!-- Custom performance text -->
+                </div>
+                <button id="btn-restart-quiz" class="px-6 py-3 bg-sky-700 text-white font-medium rounded-lg hover:bg-sky-800 shadow transition text-sm sm:text-base">Try Again</button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modern Bottom Sheet Modal for Mobile Details -->
+    <div id="mobile-detail-modal" class="fixed inset-0 z-50 flex items-end justify-center bg-black/40 hidden opacity-0 transition-opacity duration-300" onclick="closeMobileDetails()">
+        <div class="bg-white w-full max-w-lg rounded-t-2xl p-6 shadow-2xl transition-transform transform translate-y-full duration-300 max-h-[85vh] flex flex-col" id="mobile-detail-content" onclick="event.stopPropagation()">
+            <!-- Drag Handle / Header indicator -->
+            <div class="w-12 h-1.5 bg-slate-300 rounded-full mx-auto mb-5 cursor-pointer" onclick="closeMobileDetails()"></div>
+            
+            <div class="flex justify-between items-start mb-4">
+                <span id="mobile-detail-badge" class="inline-block px-2 py-1 rounded text-xs font-bold uppercase tracking-wider bg-slate-100 text-slate-800"></span>
+                <button onclick="closeMobileDetails()" class="text-slate-400 hover:text-slate-600 focus:outline-none p-1 rounded-full hover:bg-slate-100 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <h4 id="mobile-detail-title" class="text-2xl font-black text-slate-800 pr-4 mb-2"></h4>
+            <div class="h-px w-full bg-slate-200 mb-4"></div>
+            <div id="mobile-detail-body" class="text-slate-700 overflow-y-auto pr-1 flex-grow pb-6 leading-relaxed">
+                <!-- Content injected dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-slate-800 text-slate-300 py-6 border-t border-slate-700">
+        <div class="container mx-auto px-4">
+            <p class="text-center">&copy; 2023 Pathology Study Guide. All rights reserved to Sayanth.</p>
+        </div>
+    </footer>
+
+    <script>
+        const state = { currentTab: 'overview', rosChartRendered: false };
+
+        const pathwayData = {
+            'nadph': { title: 'NADPH Oxidase', type: 'Enzyme Complex', desc: 'A multi-protein electron transport enzyme. Inactive components are separated until activation triggers cytosolic subunits to translocate to the phagosome membrane. Catalyzes the "Respiratory Burst" by rapidly consuming oxygen and oxidizing NADPH.' },
+            'superoxide': { title: 'Superoxide Anion (O2•-)', type: 'Reactive Intermediate', desc: 'The initial product of the respiratory burst. Produced when NADPH oxidase transfers an electron to molecular oxygen. It is unstable and possesses weak microbicidal activity on its own.' },
+            'sod': { title: 'Superoxide Dismutase (SOD)', type: 'Enzyme', desc: 'Catalyzes the spontaneous or enzymatic conversion of superoxide into the more stable hydrogen peroxide. An important regulatory step in ROS generation.' },
+            'h2o2': { title: 'Hydrogen Peroxide (H2O2)', type: 'Reactive Intermediate', desc: 'A weak reactive oxygen species. It cannot kill most microbes efficiently by itself. It serves primarily as the essential substrate for the MPO enzyme system.' },
+            'mpo': { title: 'Myeloperoxidase (MPO)', type: 'Lysosomal Enzyme', desc: 'Present in the azurophilic (primary) granules of neutrophils. In the presence of a halide anion (usually Chloride), it converts H2O2 into highly toxic hypochlorite.' },
+            'hocl': { title: 'Hypochlorite Radical (OCl-)', type: 'Primary Microbicide', desc: 'The active component in bleach. The H2O2-MPO-halide system is the most potent bactericidal mechanism of neutrophils. Destroys microbes via halogenation and lipid/protein peroxidation.', color: 'text-red-700' },
+            'fenton': { title: 'Fenton Reaction', type: 'Chemical Reaction', desc: 'A secondary pathway where Hydrogen Peroxide reacts with free ferrous iron (Fe2+) to generate the highly destructive hydroxyl radical.' },
+            'oh': { title: 'Hydroxyl Radical (OH•)', type: 'Highly Reactive Species', desc: 'An extremely potent and destructive free radical. Modifies cellular lipids, proteins, and nucleic acids to destroy the target cell.' },
+            'inos': { title: 'Inducible Nitric Oxide Synthase', type: 'Enzyme', desc: 'Absent in resting macrophages. Induced when activated by cytokines (IFN-γ) or microbial endotoxins. Generates NO from the amino acid L-Arginine.' },
+            'no': { title: 'Nitric Oxide (NO•)', type: 'Reactive Nitrogen Species', desc: 'A soluble gas that acts as a microbicide. When produced in high concentrations within the phagolysosome, it rapidly combines with superoxide.' },
+            'onoo': { title: 'Peroxynitrite (ONOO-)', type: 'Highly Cytotoxic Oxidant', desc: 'Formed by the reaction of NO• and Superoxide. Acts similarly to hypochlorite—a highly reactive free radical that attacks and damages lipids, proteins, and nucleic acids of ingested microbes.', color: 'text-rose-700' }
+        };
+
+        const quizQuestions = [
+            {
+                q: "What is the hallmark clinical finding in Leukocyte Adhesion Deficiency (LAD)?",
+                o: ["Marked leukocytosis", "Severe thrombocytopenia", "Absence of neutrophils in bone marrow", "Decreased antibody production"],
+                a: 0,
+                exp: "In LAD, neutrophils cannot adhere and exit blood vessels, leading to a marked accumulation of WBCs in the blood (leukocytosis) but an absence of neutrophils at infection sites."
+            },
+            {
+                q: "Which opsonin receptor on phagocytes binds to IgG antibodies coating a microbe?",
+                o: ["CR1", "CR3", "Fc\u03B3RI", "Scavenger Receptor A"],
+                a: 2,
+                exp: "Phagocytes express Fc gamma receptors (such as Fc\u03B3RI) that specifically bind the Fc portion of IgG antibodies coating pathogens."
+            },
+            {
+                q: "What is the genetic mutation associated with Ch\u00e9diak-Higashi Syndrome?",
+                o: ["CYBB gene", "LYST gene", "BTK gene", "WASP gene"],
+                a: 1,
+                exp: "Ch\u00e9diak-Higashi is caused by mutation in the LYST gene (Lysosomal Trafficking Regulator), causing defective vesicle fusion."
+            },
+            {
+                q: "Which enzyme catalyzes the conversion of molecular oxygen into Superoxide during the respiratory burst?",
+                o: ["Superoxide Dismutase", "Myeloperoxidase", "NADPH Oxidase", "Nitric Oxide Synthase"],
+                a: 2,
+                exp: "NADPH Oxidase uses electrons from NADPH to reduce O2 to superoxide anion (O2\u2022-), initiating the respiratory burst."
+            },
+            {
+                q: "Bruton Disease (X-linked Agammaglobulinemia) leads to infections primarily due to a defect in:",
+                o: ["Actin polymerization", "Lysosomal trafficking", "Opsonization", "Superoxide dismutation"],
+                a: 2,
+                exp: "Bruton disease results in a lack of mature B-cells and immunoglobulins, causing defective opsonization and phagocytosis."
+            },
+            {
+                q: "Which toxic intermediate is produced when Myeloperoxidase (MPO) reacts with Hydrogen Peroxide and chloride?",
+                o: ["Superoxide", "Peroxynitrite", "Hypochlorite", "Hydroxyl Radical"],
+                a: 2,
+                exp: "Myeloperoxidase converts H2O2 and Cl- into Hypochlorite (OCl-), which is the active chemical in household bleach and a potent microbicide."
+            },
+            {
+                q: "What finding on a peripheral blood smear is pathognomonic for Ch\u00e9diak-Higashi Syndrome?",
+                o: ["Giant lysosomal granules in leukocytes", "Hypersegmented neutrophils", "Auer rods in myeloblasts", "Heinz bodies in erythrocytes"],
+                a: 0,
+                exp: "Giant granules in white blood cells are pathognomonic, arising from abnormal fusion of lysosomal components during development."
+            },
+            {
+                q: "Which protein coats a microbe and binds to the Type 1 Complement Receptor (CR1)?",
+                o: ["IgG", "C3b", "Collectins", "C-Reactive Protein"],
+                a: 1,
+                exp: "C3b (and its cleaved product iC3b) acts as a complement opsonin, binding to Complement Receptors like CR1 on leukocytes."
+            },
+            {
+                q: "During engulfment, what cellular mechanism drives the extension of pseudopods around a microbe?",
+                o: ["Microtuble depolarization", "Actin polymerization", "Myosin light chain phosphorylation", "Spectrin cleavage"],
+                a: 1,
+                exp: "Receptor binding triggers rapid actin filament polymerization at the cell cortex, pushing the membrane forward to engulf the particle."
+            },
+            {
+                q: "The reaction of Nitric Oxide (NO) with Superoxide produces which highly cytotoxic oxidant?",
+                o: ["Hypochlorite", "Peroxynitrite", "Hydroxyl Radical", "Singlet Oxygen"],
+                a: 1,
+                exp: "NO and superoxide anion react rapidly to form Peroxynitrite (ONOO-), a highly reactive oxidant that damages lipids, proteins, and DNA."
+            },
+            {
+                q: "Which enzyme is absent in resting macrophages but induced by cytokines like IFN-\u03B3 to produce NO?",
+                o: ["eNOS", "nNOS", "iNOS", "NADPH Oxidase"],
+                a: 2,
+                exp: "iNOS (inducible Nitric Oxide Synthase) is upregulated by inflammatory signals (like IFN-\u03B3) to produce microbicidal Nitric Oxide."
+            },
+            {
+                q: "The Fenton reaction generates the highly destructive Hydroxyl Radical by reacting Hydrogen Peroxide with:",
+                o: ["Calcium ions", "Ferrous iron (Fe2+)", "Myeloperoxidase", "Superoxide dismutase"],
+                a: 1,
+                exp: "The Fenton reaction involves the reaction of H2O2 with ferrous iron (Fe2+) to produce the highly reactive hydroxyl radical (OH\u2022)."
+            },
+            {
+                q: "Which phagocytic receptor binds to modified low-density lipoproteins (LDL) and a wide variety of microbes?",
+                o: ["TLR-4", "Scavenger Receptors", "Mannose Receptors", "Fc Receptor"],
+                a: 1,
+                exp: "Scavenger receptors bind a broad spectrum of negatively charged ligands, including modified LDLs and outer membrane components of pathogens."
+            },
+            {
+                q: "What is a phagolysosome?",
+                o: ["A vesicle carrying lysosomal enzymes from the Golgi", "The fusion product of a phagosome and a lysosome", "A membrane pocket formed by actin polymerization", "A leukocyte granule containing myeloperoxidase"],
+                a: 1,
+                exp: "A phagolysosome is formed when an internalized phagosome fuses with cytoplasmic lysosomes, exposing the pathogen to degradative enzymes."
+            },
+            {
+                q: "Which free radical is the most reactive and destructive towards cellular proteins and DNA?",
+                o: ["Superoxide Anion", "Hydrogen Peroxide", "Hydroxyl Radical", "Nitric Oxide"],
+                a: 2,
+                exp: "The Hydroxyl Radical (OH\u2022) is extremely unstable and highly reactive, causing immediate chemical damage to surrounding organic molecules."
+            },
+            {
+                q: "Why do patients with Ch\u00e9diak-Higashi Syndrome exhibit bleeding disorders?",
+                o: ["Defective platelet dense granules", "Autoantibodies against platelets", "Lack of clotting Factor VIII", "Inability to synthesize thromboxane A2"],
+                a: 0,
+                exp: "The mutation in the LYST gene affects all granule-forming cells, including platelets, which lack normal dense storage granules."
+            },
+            {
+                q: "Which cytokine is the main activator of macrophages to induce iNOS expression?",
+                o: ["IL-10", "IFN-\u03B3", "IL-4", "TNF-\u03B2"],
+                a: 1,
+                exp: "Interferon-gamma (IFN-\u03B3) released by T-cells and NK cells is the principal activator of macrophages."
+            },
+            {
+                q: "Which of the following describes an oxygen-independent microbicidal mechanism inside leukocytes?",
+                o: ["Myeloperoxidase pathway", "Fenton reaction", "Lysosomal acid hydrolases", "Peroxynitrite synthesis"],
+                a: 2,
+                exp: "Lysosomal acid hydrolases and antimicrobial peptides function without oxygen to degrade microbial components in the acidic phagolysosome."
+            },
+            {
+                q: "Superoxide Dismutase (SOD) converts Superoxide Anion into:",
+                o: ["Hypochlorite", "Hydrogen Peroxide", "Hydroxyl Radical", "Peroxynitrite"],
+                a: 1,
+                exp: "SOD dismutates superoxide (O2\u2022-) into oxygen and hydrogen peroxide (H2O2)."
+            },
+            {
+                q: "Which molecule represents a bacterial molecular pattern recognized by GPCRs on phagocytes?",
+                o: ["N-formyl methionine", "Lipopolysaccharide", "Mannose", "Phosphatidylserine"],
+                a: 0,
+                exp: "GPCRs on phagocytes recognize bacterial peptides starting with N-formyl methionine, which are unique to prokaryotic translation."
+            },
+            {
+                q: "The acidic pH of the phagolysosome is important because it:",
+                o: ["Denatures all DNA", "Activates lysosomal acid hydrolases", "Inhibits superoxide dismutase", "Prevents peroxynitrite formation"],
+                a: 1,
+                exp: "Lysosomal enzymes (hydrolases) have an optimal activity level in acidic environments (pH ~4.5\u20135.0)."
+            },
+            {
+                q: "What occurs during the zipping mechanism of engulfment?",
+                o: ["Clathrin-coated pits pinch inward", "Pseudopods flow over and zip together via sequential receptor-ligand bindings", "Lysosomal membranes fuse with the cell surface", "Microtubules pull the phagosome to the nucleus"],
+                a: 1,
+                exp: "Pseudopods wrap around a particle as surface receptors bind sequentially to ligands on the particle, like a zipper."
+            },
+            {
+                q: "Which protein is an acute phase reactant that can act as an opsonin?",
+                o: ["Bradykinin", "C-Reactive Protein (CRP)", "Histamine", "Albumin"],
+                a: 1,
+                exp: "CRP is an acute phase reactant synthesized by the liver that binds to microbial phosphorylcholine, acting as an opsonin."
+            },
+            {
+                q: "In LAD-1, the underlying genetic defect is in which molecule?",
+                o: ["Selectin ligands", "Integrin \u03B22 chain (CD18)", "NADPH Oxidase subunits", "Lysosomal trafficking regulator"],
+                a: 1,
+                exp: "LAD-1 is caused by mutations in the ITGB2 gene encoding the CD18 integrin beta-2 chain, preventing normal leukocyte adhesion."
+            },
+            {
+                q: "Which of the following is considered a weak reactive oxygen species that serves primarily as a precursor to more toxic agents?",
+                o: ["Hypochlorite", "Hydroxyl Radical", "Hydrogen Peroxide", "Peroxynitrite"],
+                a: 2,
+                exp: "H2O2 is relatively stable and weak, but it is critical as a precursor for MPO to form hypochlorite."
+            }
+        ];
+
+        let quizState = {
+            currentQuestion: 0,
+            score: 0,
+            hasAnswered: false
+        };
+
+        let rosChartInstance = null;
+
+        function switchTab(target) {
+            state.currentTab = target;
+            
+            // Update desktop tabs
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                if (b.getAttribute('data-target') === target) {
+                    b.classList.add('active-tab');
+                    b.classList.remove('text-slate-600');
+                } else {
+                    b.classList.remove('active-tab');
+                    b.classList.add('text-slate-600');
+                }
+            });
+
+            // Update mobile tabs
+            document.querySelectorAll('.mobile-tab-btn').forEach(b => {
+                if (b.getAttribute('data-target') === target) {
+                    b.className = 'mobile-tab-btn block w-full text-left px-3 py-2 rounded-lg active-mobile-tab transition';
+                } else {
+                    b.className = 'mobile-tab-btn block w-full text-left px-3 py-2 rounded-lg font-medium text-slate-700 hover:bg-slate-200 hover:text-sky-700 transition';
+                }
+            });
+            
+            // Switch section visibility
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('hide'));
+            const targetEl = document.getElementById(target);
+            if (targetEl) {
+                targetEl.classList.remove('hide');
+            }
+
+            if (target === 'killing') {
+                renderROSChart();
+            }
+            
+            // Close mobile menu if open
+            closeMobileMenu();
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const hamIcon = document.getElementById('hamburger-icon');
+            const closeIcon = document.getElementById('close-icon');
+            
+            if (menu) {
+                const isOpen = !menu.classList.contains('hidden');
+                if (isOpen) {
+                    closeMobileMenu();
+                } else {
+                    menu.classList.remove('hidden');
+                    hamIcon.classList.add('hidden');
+                    closeIcon.classList.remove('hidden');
+                }
+            }
+        }
+
+        function closeMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const hamIcon = document.getElementById('hamburger-icon');
+            const closeIcon = document.getElementById('close-icon');
+            
+            if (menu) {
+                menu.classList.add('hidden');
+            }
+            if (hamIcon) {
+                hamIcon.classList.remove('hidden');
+            }
+            if (closeIcon) {
+                closeIcon.classList.add('hidden');
+            }
+        }
+
+        function initNavigation() {
+            // Setup Desktop Tab Click Handlers
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const target = e.target.getAttribute('data-target');
+                    switchTab(target);
+                });
+            });
+
+            // Setup Mobile Tab Click Handlers
+            document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const target = e.target.getAttribute('data-target');
+                    switchTab(target);
+                });
+            });
+
+            // Mobile menu button toggle
+            const menuBtn = document.getElementById('mobile-menu-button');
+            if (menuBtn) {
+                menuBtn.addEventListener('click', toggleMobileMenu);
+            }
+
+            // Step click handlers
+            document.querySelectorAll('.step-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const targetBtn = e.currentTarget;
+                    const step = targetBtn.getAttribute('data-step');
+                    
+                    document.querySelectorAll('.step-btn').forEach(b => {
+                        b.classList.remove('border-sky-500', 'bg-sky-50'); b.classList.add('border-transparent');
+                        b.querySelector('span:last-child').classList.remove('text-sky-900'); b.querySelector('span:last-child').classList.add('text-slate-600');
+                    });
+                    
+                    targetBtn.classList.remove('border-transparent'); targetBtn.classList.add('border-sky-500', 'bg-sky-50');
+                    targetBtn.querySelector('span:last-child').classList.remove('text-slate-600'); targetBtn.querySelector('span:last-child').classList.add('text-sky-900');
+
+                    document.querySelectorAll('.step-content').forEach(content => content.classList.add('hide'));
+                    document.getElementById('step-' + step + '-content').classList.remove('hide');
+                });
+            });
+
+            // Initial view setup
+            switchTab('overview');
+        }
+
+        window.showPathDetail = function(nodeId) {
+            const data = pathwayData[nodeId];
+            if(!data) return;
+            
+            const titleColor = data.color || 'text-slate-800';
+            const badgeColor = data.type.includes('Enzyme') ? 'bg-sky-100 text-sky-800' : (data.type.includes('Species') || data.type.includes('Radical') || data.type.includes('Oxidant') || data.type.includes('Microbicide') ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-800');
+
+            // Render on desktop panel
+            document.getElementById('path-detail-panel').innerHTML = '<div class="animate-fade-in"><span class="inline-block px-2 py-1 rounded text-xs font-bold uppercase tracking-wider mb-3 ' + badgeColor + '">' + data.type + '</span><h4 class="text-2xl font-black mb-3 ' + titleColor + '">' + data.title + '</h4><div class="h-px w-full bg-slate-200 mb-4"></div><p class="text-slate-700 leading-relaxed text-lg">' + data.desc + '</p></div>';
+
+            // Show mobile bottom sheet modal
+            if (window.innerWidth < 1024) {
+                const badge = document.getElementById('mobile-detail-badge');
+                badge.innerText = data.type;
+                badge.className = 'inline-block px-2 py-1 rounded text-xs font-bold uppercase tracking-wider ' + badgeColor;
+                
+                document.getElementById('mobile-detail-title').innerText = data.title;
+                document.getElementById('mobile-detail-title').className = 'text-2xl font-black mb-2 ' + titleColor;
+                document.getElementById('mobile-detail-body').innerHTML = '<p class="text-slate-700 leading-relaxed text-base">' + data.desc + '</p>';
+                
+                const modal = document.getElementById('mobile-detail-modal');
+                const content = document.getElementById('mobile-detail-content');
+                
+                modal.classList.remove('hidden');
+                void modal.offsetWidth; // Force reflow
+                modal.classList.remove('opacity-0');
+                content.classList.remove('translate-y-full');
+                document.body.classList.add('overflow-hidden');
+            }
+        };
+
+        window.closeMobileDetails = function() {
+            const modal = document.getElementById('mobile-detail-modal');
+            const content = document.getElementById('mobile-detail-content');
+            
+            content.classList.add('translate-y-full');
+            modal.classList.add('opacity-0');
+            document.body.classList.remove('overflow-hidden');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        };
+
+        function renderROSChart() {
+            if (rosChartInstance) return; // Prevent duplicate instantiation
+
+            const ctx = document.getElementById('rosChart').getContext('2d');
+            rosChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Superoxide Anion', 'Hydrogen Peroxide', 'Hydroxyl Radical'],
+                    datasets: [{
+                        label: 'Relative Reactivity',
+                        data: [1, 1.2, 5],
+                        backgroundColor: ['rgba(245, 158, 11, 0.7)', 'rgba(249, 115, 22, 0.7)', 'rgba(225, 29, 72, 0.9)'],
+                        borderColor: ['rgb(245, 158, 11)', 'rgb(249, 115, 22)', 'rgb(225, 29, 72)'],
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if(context.dataIndex === 0) return ' Nature: Weak (1 electron)';
+                                    if(context.dataIndex === 1) return ' Nature: Weak (2 electrons)';
+                                    if(context.dataIndex === 2) return ' Nature: Highly Reactive (3 electrons)';
+                                }
+                            },
+                            padding: 10, titleFont: { size: 14 }, bodyFont: { size: 13 }
+                        }
+                    },
+                    scales: {
+                        x: { display: false, max: 6 },
+                        y: { ticks: { font: { weight: 'bold', family: 'Segoe UI' }, color: '#475569' }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function initQuiz() {
+            quizState.currentQuestion = 0;
+            quizState.score = 0;
+            quizState.hasAnswered = false;
+
+            document.getElementById('total-questions-num').innerText = quizQuestions.length;
+            
+            // Clean up listners to avoid duplicate trigger
+            const btnNext = document.getElementById('btn-next-question');
+            btnNext.replaceWith(btnNext.cloneNode(true));
+            document.getElementById('btn-next-question').addEventListener('click', nextQuestion);
+
+            const btnRestart = document.getElementById('btn-restart-quiz');
+            btnRestart.replaceWith(btnRestart.cloneNode(true));
+            document.getElementById('btn-restart-quiz').addEventListener('click', restartQuiz);
+
+            renderQuizQuestion();
+        }
+
+        function renderQuizQuestion() {
+            quizState.hasAnswered = false;
+            
+            const feedbackBox = document.getElementById('quiz-feedback-box');
+            feedbackBox.classList.add('hidden');
+
+            const current = quizQuestions[quizState.currentQuestion];
+            document.getElementById('current-question-num').innerText = quizState.currentQuestion + 1;
+            document.getElementById('quiz-score').innerText = quizState.score;
+            document.getElementById('quiz-question-text').innerText = current.q;
+
+            const progressPercent = ((quizState.currentQuestion) / quizQuestions.length) * 100;
+            document.getElementById('quiz-progress-bar').style.width = progressPercent + '%';
+
+            const optionsContainer = document.getElementById('quiz-options-container');
+            optionsContainer.innerHTML = '';
+
+            current.o.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-4 rounded-xl border border-slate-200 hover:border-sky-500 hover:bg-slate-50 font-medium transition flex items-center justify-between group text-sm sm:text-base';
+                btn.innerHTML = '<span>' + opt + '</span><span class="shrink-0 w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center text-xs text-transparent group-hover:border-sky-500 font-bold">&bull;</span>';
+                btn.addEventListener('click', () => handleOptionClick(idx, btn));
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function handleOptionClick(selectedIdx, selectedBtn) {
+            if (quizState.hasAnswered) return;
+            quizState.hasAnswered = true;
+
+            const current = quizQuestions[quizState.currentQuestion];
+            const optionsContainer = document.getElementById('quiz-options-container');
+            const buttons = optionsContainer.querySelectorAll('button');
+
+            buttons.forEach((btn, idx) => {
+                btn.classList.remove('hover:border-sky-500', 'hover:bg-slate-50');
+                btn.style.cursor = 'default';
+                
+                const dot = btn.querySelector('span:last-child');
+                
+                if (idx === current.a) {
+                    btn.classList.add('border-emerald-500', 'bg-emerald-50/50', 'text-emerald-950');
+                    dot.className = 'shrink-0 w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold';
+                    dot.innerHTML = '&#10003;';
+                } else if (idx === selectedIdx) {
+                    btn.classList.add('border-rose-500', 'bg-rose-50/50', 'text-rose-950');
+                    dot.className = 'shrink-0 w-6 h-6 rounded-full bg-rose-500 text-white flex items-center justify-center text-xs font-bold';
+                    dot.innerHTML = '&#10007;';
+                } else {
+                    btn.classList.add('opacity-60');
+                }
+            });
+
+            const isCorrect = selectedIdx === current.a;
+            if (isCorrect) {
+                quizState.score++;
+                document.getElementById('quiz-score').innerText = quizState.score;
+            }
+
+            const feedbackBox = document.getElementById('quiz-feedback-box');
+            const statusBox = document.getElementById('feedback-status');
+            const explanationBox = document.getElementById('feedback-explanation');
+
+            feedbackBox.classList.remove('hidden');
+            
+            if (isCorrect) {
+                feedbackBox.className = 'mt-8 p-5 rounded-xl border border-emerald-200 bg-emerald-50/30 flex flex-col space-y-2';
+                statusBox.innerHTML = '<span class="text-emerald-700 flex items-center gap-1.5"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> Correct Answer!</span>';
+            } else {
+                feedbackBox.className = 'mt-8 p-5 rounded-xl border border-rose-200 bg-rose-50/30 flex flex-col space-y-2';
+                statusBox.innerHTML = '<span class="text-rose-700 flex items-center gap-1.5"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg> Incorrect</span>';
+            }
+
+            explanationBox.innerHTML = '<strong>Mechanism:</strong> ' + current.exp;
+            
+            if (window.innerWidth < 768) {
+                feedbackBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        function nextQuestion() {
+            quizState.currentQuestion++;
+            if (quizState.currentQuestion < quizQuestions.length) {
+                renderQuizQuestion();
+            } else {
+                showQuizSummary();
+            }
+        }
+
+        function showQuizSummary() {
+            document.getElementById('quiz-progress-bar').style.width = '100%';
+            document.getElementById('quiz-container').classList.add('hidden');
+            
+            const summaryContainer = document.getElementById('quiz-summary-container');
+            summaryContainer.classList.remove('hidden');
+
+            document.getElementById('final-score').innerText = quizState.score;
+            document.getElementById('final-total').innerText = quizQuestions.length;
+
+            const icon = document.getElementById('summary-icon');
+            const performance = document.getElementById('summary-performance');
+
+            let message = '';
+            if (quizState.score === quizQuestions.length) {
+                icon.innerText = '👑';
+                message = '<p class="font-bold text-emerald-800 text-base mb-1">Perfect Phagocytosis Score!</p><p>You are an expert on the processes and chemistry of phagocytosis and clearance. You fully understand the cascades, cellular receptors, and lysosomal disorders.</p>';
+            } else if (quizState.score >= 18) {
+                icon.innerText = '🧠';
+                message = '<p class="font-bold text-sky-800 text-base mb-1">Excellent Job!</p><p>You have a strong grasp of engulfment mechanics and respiratory burst pathways. Reviewing the Chédiak-Higashi mechanism details will make you flawless.</p>';
+            } else if (quizState.score >= 12) {
+                icon.innerText = '📚';
+                message = '<p class="font-bold text-slate-800 text-base mb-1">Good Effort!</p><p>You have a passing understanding of receptors, opsonins, and reactive species. Review the pathway diagrams and tables to improve.</p>';
+            } else {
+                icon.innerText = '⚡';
+                message = '<p class="font-bold text-rose-800 text-base mb-1">Need More Study</p><p>Phagocytosis is biochemically complex. We recommend thoroughly studying the Recognition and Intracellular Killing sections before retaking this quiz.</p>';
+            }
+            performance.innerHTML = message;
+        }
+
+        function restartQuiz() {
+            document.getElementById('quiz-summary-container').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            initQuiz();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initNavigation();
+            initQuiz();
+        });
+    </script>
+</body>
+</html>
