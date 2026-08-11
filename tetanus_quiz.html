@@ -1,0 +1,554 @@
+<style>
+  :root{
+    --ink:#12221d;
+    --paper:#f6f3ea;
+    --panel:#ffffff;
+    --teal:#0f5c4e;
+    --teal-deep:#0a3f36;
+    --clay:#b5502f;
+    --line:#d8d0bd;
+    --muted:#6b7269;
+    --good:#1e7a4c;
+    --bad:#b5402f;
+  }
+  *{box-sizing:border-box;}
+  .qz-root{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Iowan Old Style','Georgia',serif;
+    min-height:100%;
+    padding:0;
+    position:relative;
+  }
+  .qz-wrap{max-width:640px;margin:0 auto;padding:28px 20px 60px;}
+  .qz-topline{
+    display:flex;align-items:baseline;justify-content:space-between;
+    border-bottom:2px solid var(--teal-deep);
+    padding-bottom:10px;margin-bottom:6px;
+  }
+  .qz-mono{
+    font-family:'Courier New',monospace;
+    font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);
+  }
+  h1.qz-title{
+    font-family:'Iowan Old Style','Palatino',serif;
+    font-size:32px;margin:4px 0 2px;font-weight:700;color:var(--teal-deep);letter-spacing:-0.3px;
+  }
+  .qz-sub{color:var(--muted);font-size:14px;margin-bottom:22px;font-style:italic;}
+
+  .qz-pulse{
+    width:100%;height:34px;margin:6px 0 22px;opacity:0.85;
+  }
+
+  .qz-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:22px 22px 18px;
+    margin-bottom:18px;
+    box-shadow:0 1px 0 rgba(0,0,0,0.03);
+  }
+  .qz-label{
+    font-family:'Courier New',monospace;font-size:11px;color:var(--teal);
+    text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;
+  }
+  input.qz-input{
+    width:100%;padding:11px 12px;font-family:inherit;font-size:16px;
+    border:1px solid var(--line);border-radius:2px;background:var(--paper);color:var(--ink);
+  }
+  input.qz-input:focus{outline:none;border-color:var(--teal);}
+
+  button.qz-btn{
+    font-family:'Courier New',monospace;
+    background:var(--teal-deep);color:var(--paper);
+    border:none;padding:13px 22px;font-size:13px;letter-spacing:1px;text-transform:uppercase;
+    border-radius:2px;cursor:pointer;
+  }
+  button.qz-btn:hover{background:var(--teal);}
+  button.qz-btn:disabled{background:#b9b39f;cursor:not-allowed;}
+  button.qz-ghost{
+    background:transparent;color:var(--teal-deep);border:1px solid var(--teal-deep);
+    font-family:'Courier New',monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;
+    padding:9px 16px;border-radius:2px;cursor:pointer;
+  }
+
+  .qz-qnum{
+    font-family:'Courier New',monospace;font-size:12px;color:var(--clay);font-weight:700;margin-bottom:8px;
+  }
+  .qz-qtext{font-size:19px;line-height:1.4;margin-bottom:16px;color:var(--ink);}
+  .qz-opt{
+    display:flex;align-items:flex-start;gap:10px;
+    padding:12px 14px;margin-bottom:8px;
+    border:1px solid var(--line);border-radius:2px;cursor:pointer;
+    font-size:15px;line-height:1.4;transition:border-color .12s,background .12s;
+    background:var(--paper);
+  }
+  .qz-opt:hover{border-color:var(--teal);}
+  .qz-opt.qz-selected{border-color:var(--teal);background:#eef4ec;}
+  .qz-opt.qz-correct{border-color:var(--good);background:#e8f4ea;}
+  .qz-opt.qz-incorrect{border-color:var(--bad);background:#f7e9e5;}
+  .qz-optletter{
+    font-family:'Courier New',monospace;font-weight:700;color:var(--teal-deep);flex:0 0 18px;
+  }
+  .qz-explain{
+    margin-top:10px;padding:12px 14px;background:#f1efe4;border-left:3px solid var(--teal);
+    font-size:14px;color:var(--ink);line-height:1.5;display:none;
+  }
+  .qz-explain.qz-show{display:block;}
+
+  .qz-progressbar{
+    display:flex;gap:4px;margin-bottom:22px;
+  }
+  .qz-dot{flex:1;height:4px;background:var(--line);border-radius:2px;}
+  .qz-dot.qz-done{background:var(--teal);}
+  .qz-dot.qz-current{background:var(--clay);}
+
+  .qz-footer-nav{display:flex;justify-content:space-between;align-items:center;margin-top:8px;}
+
+  .qz-score-hero{
+    text-align:center;padding:34px 20px;
+    border:1px solid var(--line);background:var(--panel);margin-bottom:18px;
+  }
+  .qz-score-num{font-size:64px;font-weight:700;color:var(--teal-deep);line-height:1;}
+  .qz-score-of{font-size:16px;color:var(--muted);margin-top:4px;}
+  .qz-score-msg{font-style:italic;color:var(--clay);margin-top:10px;font-size:15px;}
+
+  table.qz-table{width:100%;border-collapse:collapse;font-size:14px;}
+  table.qz-table th{
+    font-family:'Courier New',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;
+    text-align:left;padding:8px 10px;color:var(--muted);border-bottom:2px solid var(--teal-deep);
+  }
+  table.qz-table td{padding:9px 10px;border-bottom:1px solid var(--line);}
+  table.qz-table tr:last-child td{border-bottom:none;}
+
+  .qz-linkrow{text-align:center;margin-top:26px;}
+  .qz-linkrow a{color:var(--muted);font-family:'Courier New',monospace;font-size:11px;letter-spacing:1px;cursor:pointer;text-decoration:underline;}
+
+  .qz-empty{color:var(--muted);font-style:italic;text-align:center;padding:30px 0;}
+  .qz-loading{color:var(--muted);text-align:center;padding:40px 0;font-family:'Courier New',monospace;font-size:12px;letter-spacing:1px;}
+</style>
+
+<div class="qz-root">
+  <div class="qz-wrap">
+    <div class="qz-topline">
+      <span class="qz-mono">Ch. 72 &mdash; Self-Test</span>
+      <span class="qz-mono" id="qz-headright">10 items</span>
+    </div>
+    <h1 class="qz-title">Tetanus</h1>
+    <div class="qz-sub">Clostridium tetani &middot; pathogenesis, diagnosis &amp; management</div>
+
+    <svg class="qz-pulse" viewBox="0 0 600 40" preserveAspectRatio="none">
+      <polyline points="0,20 60,20 75,20 85,4 95,36 105,20 140,20 155,20 165,8 175,32 185,20 220,20 600,20"
+        fill="none" stroke="#b5502f" stroke-width="1.6"/>
+    </svg>
+
+    <div id="qz-app"><div class="qz-loading">LOADING&hellip;</div></div>
+
+    <div class="qz-linkrow">
+      <a id="qz-toggle-results">view all results</a>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const QUESTIONS = [
+    {
+      q: "Clostridium tetani is best described as:",
+      opts: [
+        "Obligate anaerobic, gram-negative coccus",
+        "Obligate anaerobic, gram-positive bacillus with terminal round spore",
+        "Facultative anaerobic, gram-positive bacillus with subterminal spore",
+        "Aerobic, gram-positive bacillus without spores"
+      ],
+      correct: 1,
+      explain: "C. tetani is an obligate anaerobic, gram-positive bacillus with a terminal, round spore giving it the classic 'drum stick' appearance."
+    },
+    {
+      q: "C. tetani was first isolated by:",
+      opts: ["Robert Koch (1882)", "Kitasato (1889)", "Louis Pasteur (1885)", "Alexander Fleming (1928)"],
+      correct: 1,
+      explain: "Though tetanus has been known since ancient times, the causative organism was isolated later by Kitasato in 1889."
+    },
+    {
+      q: "Which exotoxin of C. tetani is actually responsible for the clinical disease?",
+      opts: ["Tetanolysin", "Tetanospasmin", "Both equally", "Neither — disease is due to bacterial invasion"],
+      correct: 1,
+      explain: "Tetanospasmin (the neurotoxin) causes the disease manifestations. Tetanolysin is a hemolysin with no role in pathogenesis."
+    },
+    {
+      q: "Tetanus toxin is genetically encoded on the:",
+      opts: ["Chromosome", "Plasmid", "Bacteriophage", "Transposon only"],
+      correct: 1,
+      explain: "Tetanus toxin is plasmid coded, unlike some other bacterial toxins that are phage- or chromosome-encoded."
+    },
+    {
+      q: "Tetanospasmin produces spastic paralysis by:",
+      opts: [
+        "Blocking acetylcholine receptors at the neuromuscular junction",
+        "Blocking presynaptic release of inhibitory neurotransmitters GABA and glycine",
+        "Directly destroying anterior horn cells",
+        "Stimulating excess acetylcholine release"
+      ],
+      correct: 1,
+      explain: "The toxin travels retrograde to inhibitory (GABA/glycine) neuron terminals and blocks their presynaptic release, removing inhibition and causing spastic contraction."
+    },
+    {
+      q: "The tetanus toxoid used for vaccine preparation is produced by treating the toxin with:",
+      opts: ["Heat alone", "Formaldehyde", "Ultraviolet radiation", "Chlorine"],
+      correct: 1,
+      explain: "Toxin is toxoided spontaneously or by formaldehyde treatment — the toxoid remains antigenic but loses its virulence, making it suitable for vaccines."
+    },
+    {
+      q: "In classic tetanus, the first muscles typically affected are those of the:",
+      opts: ["Hands and feet", "Face and jaw", "Diaphragm", "Lower back only"],
+      correct: 1,
+      explain: "Face/jaw muscles are affected first because the toxin has the shortest distance to travel along those nerve terminals — producing trismus (lockjaw) as the first symptom."
+    },
+    {
+      q: "Which of the following is classically SPARED in generalized tetanus?",
+      opts: ["Facial muscles", "Back extensors", "Hands and feet", "Masseter muscle"],
+      correct: 2,
+      explain: "Hands and feet are typically spared, and mentation remains unimpaired throughout — a distinguishing clinical feature."
+    },
+    {
+      q: "The sustained, grinning facial spasm seen in tetanus is called:",
+      opts: ["Opisthotonos", "Risus sardonicus", "Trismus", "Nuchal rigidity"],
+      correct: 1,
+      explain: "Risus sardonicus is the sustained spasm of facial muscles producing an abnormal grinning appearance, distinct from opisthotonos (whole-body arching)."
+    },
+    {
+      q: "Autonomic disturbance in severe tetanus is typically maximal during:",
+      opts: ["The first 24 hours", "The first week", "The second week", "After full recovery"],
+      correct: 2,
+      explain: "Autonomic disturbance — labile blood pressure, tachycardia, sweating, intestinal stasis, increased tracheal secretions, acute renal failure — peaks during the second week of severe tetanus."
+    },
+    {
+      q: "The most reliable specimen for laboratory diagnosis of tetanus is:",
+      opts: ["Wound swab", "Blood culture", "Excised tissue bits from the necrotic depths of the wound", "Cerebrospinal fluid"],
+      correct: 2,
+      explain: "Excised necrotic tissue from the wound depths is more reliable than a surface swab for isolating C. tetani."
+    },
+    {
+      q: "Gram staining alone is considered unreliable for diagnosing tetanus mainly because:",
+      opts: [
+        "C. tetani does not stain with Gram stain",
+        "It cannot distinguish C. tetani from morphologically similar non-pathogenic clostridia",
+        "Gram staining destroys the spores",
+        "It only works on blood samples"
+      ],
+      correct: 1,
+      explain: "Microscopy cannot reliably distinguish C. tetani from look-alike non-pathogenic clostridia such as C. tetanomorphum and C. sphenoides."
+    },
+    {
+      q: "On culture, C. tetani in Robertson's cooked meat broth characteristically produces:",
+      opts: [
+        "No visible change, clear broth",
+        "Blackening of meat particles with foul odor",
+        "Green pigment production",
+        "Curdling of the medium"
+      ],
+      correct: 1,
+      explain: "Being proteolytic, C. tetani turns the meat particles black with a foul odor in Robertson's cooked meat broth."
+    },
+    {
+      q: "On blood agar with polymyxin B under anaerobic conditions, C. tetani produces:",
+      opts: ["Pinpoint non-hemolytic colonies", "Swarming growth", "Mucoid green colonies", "No growth at all"],
+      correct: 1,
+      explain: "Incubated at 37°C for 24–48 hours anaerobically, C. tetani shows characteristic swarming growth on blood agar with polymyxin B."
+    },
+    {
+      q: "Toxin production by an isolated Clostridium is confirmed by:",
+      opts: ["Gram stain alone", "In vivo mouse inoculation test", "Blood culture", "ELISA for antibodies only"],
+      correct: 1,
+      explain: "Since pathogenesis is toxin-mediated, toxigenicity is confirmed using the in vivo mouse inoculation test on specimens such as serum or urine."
+    },
+    {
+      q: "The treatment of choice for an established case of tetanus is:",
+      opts: ["High-dose penicillin alone", "Passive immunization with tetanus immunoglobulin (HTIG/ATS)", "Active immunization with toxoid alone", "Muscle relaxants alone"],
+      correct: 1,
+      explain: "Passive immunization (HTIG or ATS) is the treatment of choice, since antibiotics cannot neutralize toxin already released."
+    },
+    {
+      q: "Why is HTIG generally preferred over ATS?",
+      opts: [
+        "HTIG is cheaper",
+        "ATS (equine) carries risk of serum sickness and anaphylactoid reactions",
+        "ATS has a longer duration of protection",
+        "HTIG requires no cold storage"
+      ],
+      correct: 1,
+      explain: "ATS is equine-derived and associated with serum sickness/anaphylactoid reactions; HTIG (human) lasts longer (~30 days vs 7–10 days for ATS) and is safer."
+    },
+    {
+      q: "The drug of choice for antibiotic treatment of tetanus is:",
+      opts: ["Ceftriaxone", "Metronidazole", "Vancomycin", "Azithromycin"],
+      correct: 1,
+      explain: "Metronidazole (7–10 days) is the drug of choice; penicillin or doxycycline can be given as alternatives. Antibiotics play only a minor role since they can't neutralize already-released toxin."
+    },
+    {
+      q: "Under the National Immunization Schedule of India, primary immunization against tetanus involves a total of how many doses?",
+      opts: ["Three", "Five", "Seven", "Ten"],
+      correct: 2,
+      explain: "Total 'seven doses': 3 doses of pentavalent vaccine (6, 10, 14 weeks) + 2 DPT boosters (16–24 weeks, 5 years) + 2 Td doses (10 years, 16 years)."
+    },
+    {
+      q: "Tetanus vaccine is given by deep intramuscular injection at which site in adults?",
+      opts: ["Anterolateral thigh", "Deltoid", "Gluteal region", "Forearm"],
+      correct: 1,
+      explain: "Site of injection is the anterolateral aspect of the thigh in children, and the deltoid in adults."
+    },
+    {
+      q: "A person is considered protected against tetanus when the antitoxin titre is:",
+      opts: ["≥0.01 IU/mL", "≥1 IU/mL", "≥10 IU/mL", "≥100 IU/mL"],
+      correct: 0,
+      explain: "A protective tetanus antitoxin titre is ≥0.01 IU/mL."
+    },
+    {
+      q: "A patient with a clean, non-tetanus-prone wound who received a TT booster 6 years ago should receive:",
+      opts: ["Nothing required", "Td 1 dose", "Td complete dose + HTIG", "HTIG alone"],
+      correct: 0,
+      explain: "If the complete vaccine course (or booster) was taken within the last 5 years, nothing further is required regardless of wound type."
+    },
+    {
+      q: "A patient with a tetanus-prone wound whose last dose was taken more than 10 years ago should receive:",
+      opts: ["Nothing required", "Td 1 dose only", "Td 1 dose + HTIG", "HTIG alone, no toxoid"],
+      correct: 2,
+      explain: "For a tetanus-prone wound with the last dose >10 years ago, give Td 1 dose PLUS HTIG."
+    },
+    {
+      q: "Neonatal tetanus is also known as the '8th day disease' because symptoms usually begin:",
+      opts: ["Within the first 24 hours of life", "After about 1 week of birth", "After 1 month of birth", "Only after weaning"],
+      correct: 1,
+      explain: "WHO defines neonatal tetanus as illness occurring between day 3–28 of life; symptoms classically start around 1 week (hence '8th day disease')."
+    },
+    {
+      q: "The most common cause of neonatal tetanus is:",
+      opts: [
+        "Vaccine failure in the mother",
+        "Unhygienic practices during delivery, e.g. cow dung applied to the umbilical stump",
+        "Transplacental transmission from mother to fetus",
+        "Contaminated breast milk"
+      ],
+      correct: 1,
+      explain: "Unhygienic delivery practices — such as applying cow dung to the umbilical stump, or unsafe cord cutting — are the most common cause of neonatal tetanus."
+    },
+    {
+      q: "Neonatal tetanus shows a seasonal pattern, being more common in which months?",
+      opts: ["January–March", "April–June", "July–September", "October–December"],
+      correct: 2,
+      explain: "Neonatal tetanus is more common in July, August, and September."
+    },
+    {
+      q: "To prevent neonatal tetanus, Td (2 doses) should be given to pregnant women:",
+      opts: ["In the 1st trimester, 1 week apart", "In the 2nd trimester, 1 month apart", "Only postpartum", "In the 3rd trimester, 1 week apart"],
+      correct: 1,
+      explain: "Td (2 doses) is given to all pregnant women during the 2nd trimester, at a 1-month gap, to protect the neonate."
+    },
+    {
+      q: "India achieved WHO-declared elimination status for neonatal tetanus in which year?",
+      opts: ["2010", "2016", "2020", "2005"],
+      correct: 1,
+      explain: "India achieved the elimination status for neonatal tetanus, as declared by WHO in 2016."
+    },
+    {
+      q: "Which of the following is a criterion for neonatal tetanus elimination?",
+      opts: [
+        "Neonatal tetanus rate <1 per 1,000 live births per district",
+        "Neonatal tetanus rate <10 per 1,000 live births nationally",
+        "Td coverage to pregnant women >50%",
+        "Attended deliveries >30%"
+      ],
+      correct: 0,
+      explain: "Elimination is based on: neonatal tetanus rate <1/1,000 live births in every district, Td coverage to pregnant women >90%, and attended deliveries >75%."
+    },
+    {
+      q: "Regarding immunity after clinical recovery from tetanus, it is true that:",
+      opts: [
+        "Clinical tetanus confers lifelong immunity",
+        "Clinical tetanus does NOT confer immunity, so the vaccine series must still be completed",
+        "One dose of toxoid after recovery is sufficient forever",
+        "No further vaccination is ever needed after natural infection"
+      ],
+      correct: 1,
+      explain: "Unlike many infections, clinical tetanus does not confer immunity because so little toxin is needed to cause disease — the full vaccine series should be completed after recovery."
+    },
+    {
+      q: "According to the 2018 WHO report, approximately what proportion of global tetanus cases occurred in India?",
+      opts: ["~5%", "~20%", "~46%", "~80%"],
+      correct: 2,
+      explain: "Of 15,103 tetanus cases reported worldwide in 2018, about 7,000 (~46%) were from India."
+    }
+  ];
+
+  const TOTAL = QUESTIONS.length;
+  let name = "";
+  let answers = new Array(TOTAL).fill(null);
+  let current = 0;
+  let submitted = false;
+  let view = "quiz"; // quiz | results
+
+  const app = document.getElementById('qz-app');
+  const headRight = document.getElementById('qz-headright');
+  const toggleLink = document.getElementById('qz-toggle-results');
+
+  toggleLink.addEventListener('click', async () => {
+    view = (view === 'quiz') ? 'results' : 'quiz';
+    toggleLink.textContent = view === 'quiz' ? 'view all results' : 'back to quiz';
+    await render();
+  });
+
+  function letter(i){ return String.fromCharCode(65+i); }
+
+  async function loadResults(){
+    try {
+      const r = await window.storage.get('tetanus-quiz-results', true);
+      if (!r || !r.value) return [];
+      return JSON.parse(r.value);
+    } catch(e){ return []; }
+  }
+
+  async function saveResult(entry){
+    const list = await loadResults();
+    list.push(entry);
+    try {
+      await window.storage.set('tetanus-quiz-results', JSON.stringify(list), true);
+    } catch(e){ console.error('storage error', e); }
+  }
+
+  function score(){
+    let s = 0;
+    QUESTIONS.forEach((q,i)=>{ if(answers[i]===q.correct) s++; });
+    return s;
+  }
+
+  async function render(){
+    headRight.textContent = view === 'quiz' ? (submitted ? 'done' : (current+1)+' / '+TOTAL) : 'all attempts';
+
+    if (view === 'results') {
+      app.innerHTML = '<div class="qz-loading">LOADING&hellip;</div>';
+      const list = await loadResults();
+      if (!list.length){
+        app.innerHTML = '<div class="qz-empty">No attempts yet. Results will appear here once someone completes the quiz.</div>';
+        return;
+      }
+      list.sort((a,b)=> b.time - a.time);
+      let rows = list.map(e => {
+        const d = new Date(e.time);
+        return '<tr><td>'+escapeHtml(e.name)+'</td><td>'+e.score+' / '+TOTAL+'</td><td>'+d.toLocaleDateString()+' '+d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})+'</td></tr>';
+      }).join('');
+      app.innerHTML = '<table class="qz-table"><thead><tr><th>Name</th><th>Score</th><th>Submitted</th></tr></thead><tbody>'+rows+'</tbody></table>';
+      return;
+    }
+
+    if (!name){
+      app.innerHTML = `
+        <div class="qz-card">
+          <div class="qz-label">Before you start</div>
+          <div class="qz-qtext" style="font-size:16px;">Enter your name so your result is saved.</div>
+          <input class="qz-input" id="qz-name-input" placeholder="Your name" />
+          <div style="margin-top:14px;">
+            <button class="qz-btn" id="qz-start-btn">Start quiz</button>
+          </div>
+        </div>`;
+      document.getElementById('qz-start-btn').addEventListener('click', () => {
+        const v = document.getElementById('qz-name-input').value.trim();
+        if (!v) return;
+        name = v;
+        render();
+      });
+      document.getElementById('qz-name-input').addEventListener('keydown', (e)=>{
+        if (e.key === 'Enter') document.getElementById('qz-start-btn').click();
+      });
+      return;
+    }
+
+    if (submitted){
+      const s = score();
+      let msg = "Solid grasp of the chapter.";
+      if (s === TOTAL) msg = "Perfect score — lockjaw-tight knowledge.";
+      else if (s <= TOTAL/2) msg = "Worth a re-read of the pathogenesis and treatment sections.";
+
+      let reviewHtml = QUESTIONS.map((q,i)=>{
+        const correct = answers[i] === q.correct;
+        let optsHtml = q.opts.map((o,oi)=>{
+          let cls = 'qz-opt';
+          if (oi === q.correct) cls += ' qz-correct';
+          else if (oi === answers[i]) cls += ' qz-incorrect';
+          return '<div class="'+cls+'"><span class="qz-optletter">'+letter(oi)+'</span><span>'+escapeHtml(o)+'</span></div>';
+        }).join('');
+        return `<div class="qz-card">
+          <div class="qz-qnum">Q${i+1} &middot; ${correct? 'CORRECT':'INCORRECT'}</div>
+          <div class="qz-qtext">${escapeHtml(q.q)}</div>
+          ${optsHtml}
+          <div class="qz-explain qz-show">${escapeHtml(q.explain)}</div>
+        </div>`;
+      }).join('');
+
+      app.innerHTML = `
+        <div class="qz-score-hero">
+          <div class="qz-score-num">${s}</div>
+          <div class="qz-score-of">out of ${TOTAL} correct — ${name}</div>
+          <div class="qz-score-msg">${msg}</div>
+        </div>
+        ${reviewHtml}
+      `;
+      return;
+    }
+
+    const q = QUESTIONS[current];
+    let dots = QUESTIONS.map((_,i)=>{
+      let cls = 'qz-dot';
+      if (i < current) cls += ' qz-done';
+      if (i === current) cls += ' qz-current';
+      return '<div class="'+cls+'"></div>';
+    }).join('');
+
+    let optsHtml = q.opts.map((o,oi)=>{
+      let cls = 'qz-opt' + (answers[current]===oi ? ' qz-selected' : '');
+      return '<div class="'+cls+'" data-oi="'+oi+'"><span class="qz-optletter">'+letter(oi)+'</span><span>'+escapeHtml(o)+'</span></div>';
+    }).join('');
+
+    app.innerHTML = `
+      <div class="qz-progressbar">${dots}</div>
+      <div class="qz-card">
+        <div class="qz-qnum">Question ${current+1}</div>
+        <div class="qz-qtext">${escapeHtml(q.q)}</div>
+        <div id="qz-opts">${optsHtml}</div>
+      </div>
+      <div class="qz-footer-nav">
+        <button class="qz-ghost" id="qz-prev" ${current===0?'disabled':''}>Back</button>
+        <button class="qz-btn" id="qz-next">${current===TOTAL-1 ? 'Submit' : 'Next'}</button>
+      </div>
+    `;
+
+    document.querySelectorAll('#qz-opts .qz-opt').forEach(el=>{
+      el.addEventListener('click', () => {
+        answers[current] = parseInt(el.getAttribute('data-oi'));
+        render();
+      });
+    });
+    document.getElementById('qz-prev').addEventListener('click', ()=>{ current--; render(); });
+    document.getElementById('qz-next').addEventListener('click', async ()=>{
+      if (answers[current] === null) return;
+      if (current === TOTAL-1){
+        submitted = true;
+        const s = score();
+        await saveResult({ name, score: s, time: Date.now() });
+        render();
+      } else {
+        current++;
+        render();
+      }
+    });
+  }
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  render();
+})();
+</script>
