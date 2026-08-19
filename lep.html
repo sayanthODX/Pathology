@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Leprosy Ledger — A Specimen Quiz</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,900;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=Special+Elite&display=swap');
+
+  :root{
+    --paper: #efe4cd;
+    --paper-dark: #e4d6b8;
+    --ink: #2b2213;
+    --ink-soft: #4a3c26;
+    --umber: #6b4226;
+    --umber-dark: #4e2f1b;
+    --brass: #a9803d;
+    --sage: #4f6b4e;
+    --sage-dark: #37503a;
+    --card: #f8f0dc;
+    --rule: rgba(43,34,19,0.25);
+    --shadow: rgba(43,34,19,0.35);
+    --gold: #b68a3c;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html,body{
+    margin:0; padding:0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'EB Garamond', serif;
+    scroll-behavior: smooth;
+  }
+
+  body{
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(169,128,61,0.12), transparent 42%),
+      radial-gradient(circle at 90% 85%, rgba(107,66,38,0.10), transparent 48%),
+      repeating-linear-gradient(0deg, rgba(43,34,19,0.025) 0px, rgba(43,34,19,0.025) 1px, transparent 1px, transparent 3px);
+    min-height:100vh;
+    padding-bottom: 60px;
+  }
+
+  .wrap{
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 22px 90px;
+  }
+
+  /* ---------- STICKY SCORE BAR ---------- */
+  .score-bar{
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: linear-gradient(180deg, var(--umber-dark), var(--umber));
+    color: #f4ecd8;
+    padding: 10px 18px;
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    gap: 14px;
+    font-family:'Special Elite', monospace;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    border-bottom: 2px solid var(--gold);
+    box-shadow: 0 4px 10px -4px rgba(0,0,0,0.4);
+  }
+  .score-bar .sb-left{ display:flex; align-items:center; gap:10px; flex:1; min-width:0; }
+  .score-bar .sb-track{
+    flex:1; max-width: 260px; height:7px;
+    background: rgba(244,236,216,0.2);
+    border-radius: 4px; overflow:hidden;
+    border: 1px solid rgba(244,236,216,0.35);
+  }
+  .score-bar .sb-fill{
+    height:100%; width:0%;
+    background: linear-gradient(90deg, var(--gold), #e3c77a);
+    transition: width 0.4s ease;
+  }
+  .score-bar .sb-score{
+    font-weight: bold;
+    color: #f6e6b8;
+    white-space: nowrap;
+  }
+
+  /* ---------- HEADER ---------- */
+  header{
+    text-align:center;
+    padding: 44px 0 34px;
+    margin-bottom: 30px;
+    border-bottom: 3px double var(--ink-soft);
+    position:relative;
+  }
+
+  .eyebrow{
+    font-family: 'Special Elite', monospace;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    font-size: 12px;
+    color: var(--umber);
+    margin-bottom: 14px;
+  }
+
+  h1{
+    font-family:'Playfair Display', serif;
+    font-weight: 900;
+    font-size: clamp(32px, 6vw, 52px);
+    margin: 0 0 8px;
+    line-height:1.05;
+    letter-spacing: -0.01em;
+    color: var(--umber-dark);
+  }
+
+  .subtitle{
+    font-style: italic;
+    color: var(--ink-soft);
+    font-size: 18px;
+    margin: 0 0 18px;
+  }
+
+  .plate-number{
+    font-family:'Special Elite', monospace;
+    font-size: 11px;
+    color: var(--brass);
+    letter-spacing:0.15em;
+  }
+
+  .ornament{
+    width: 130px;
+    height: 14px;
+    margin: 18px auto 0;
+    opacity:0.7;
+  }
+
+  .focus-tags{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+  .focus-tag{
+    font-family:'Special Elite', monospace;
+    font-size: 10.5px;
+    letter-spacing:0.08em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border: 1px solid var(--umber);
+    border-radius: 20px;
+    color: var(--umber-dark);
+    background: var(--card);
+  }
+
+  /* ---------- QUOTE CARD ---------- */
+  .quote-card{
+    margin: 34px 0;
+    padding: 22px 26px;
+    background: linear-gradient(135deg, rgba(182,138,60,0.12), rgba(107,66,38,0.06));
+    border-left: 4px solid var(--gold);
+    border-radius: 2px;
+    position: relative;
+    font-style: italic;
+  }
+  .quote-card::before{
+    content: "❧";
+    position: absolute;
+    top: 6px;
+    right: 16px;
+    font-size: 22px;
+    color: var(--gold);
+    opacity: 0.6;
+  }
+  .quote-text{
+    font-size: 19px;
+    line-height: 1.5;
+    color: var(--umber-dark);
+    margin: 0 0 8px;
+  }
+  .quote-attr{
+    font-family:'Special Elite', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--brass);
+    font-style: normal;
+  }
+
+  /* ---------- QUESTION CARDS ---------- */
+  .card{
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 30px 28px 26px;
+    margin-bottom: 30px;
+    position: relative;
+    box-shadow: 0 3px 0 var(--paper-dark), 0 10px 24px -14px var(--shadow);
+  }
+
+  .card::before{
+    content:"";
+    position:absolute;
+    top:10px; left:10px; right:10px; bottom:10px;
+    border: 1px solid rgba(107,66,38,0.18);
+    pointer-events:none;
+    border-radius: 2px;
+  }
+
+  .card-head{
+    display:flex;
+    align-items:center;
+    gap: 14px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+
+  .qnum{
+    font-family:'Playfair Display', serif;
+    font-weight:900;
+    font-size: 28px;
+    color: var(--umber);
+    min-width: 46px;
+  }
+
+  .qmeta{
+    font-family:'Special Elite', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #fff;
+    background: var(--sage-dark);
+    padding: 4px 10px;
+    border-radius: 12px;
+  }
+  .qmeta.hy{
+    background: var(--umber-dark);
+  }
+
+  .qtext{
+    font-size: 20px;
+    line-height:1.45;
+    color: var(--ink);
+    margin: 10px 0 20px 0;
+    font-weight: 500;
+  }
+
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap: 10px;
+  }
+
+  .option{
+    display:flex;
+    align-items:flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+    text-align:left;
+  }
+
+  .option:hover{
+    background: var(--paper-dark);
+    transform: translateX(2px);
+  }
+
+  .option .letter{
+    font-family:'Playfair Display', serif;
+    font-weight:700;
+    font-size: 15px;
+    color: var(--ink-soft);
+    border: 1px solid var(--ink-soft);
+    border-radius: 50%;
+    width: 26px; height:26px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+    background: var(--card);
+  }
+
+  .option .otext{
+    font-size: 16.5px;
+    line-height:1.4;
+    padding-top:2px;
+  }
+
+  .option.correct{
+    background: rgba(79,107,78,0.18);
+    border-color: var(--sage-dark);
+  }
+  .option.correct .letter{
+    background: var(--sage-dark);
+    border-color: var(--sage-dark);
+    color: #f4efe1;
+  }
+
+  .option.incorrect{
+    background: rgba(107,66,38,0.14);
+    border-color: var(--umber-dark);
+  }
+  .option.incorrect .letter{
+    background: var(--umber-dark);
+    border-color: var(--umber-dark);
+    color: #f4efe1;
+  }
+
+  .option.disabled{ cursor: default; }
+  .option.dim{ opacity: 0.5; }
+
+  .explain-box{
+    margin-top: 8px;
+    font-size: 15px;
+    line-height:1.55;
+    color: var(--ink-soft);
+    display:none;
+    border-left: 2px solid var(--rule);
+    margin-left: 6px;
+    padding-left: 16px;
+  }
+  .explain-box.show{ display:block; }
+
+  .verdict{
+    font-family:'Special Elite', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform:uppercase;
+    margin-bottom: 4px;
+    display:block;
+  }
+  .verdict.right{ color: var(--sage-dark); }
+  .verdict.wrong{ color: var(--umber-dark); }
+
+  /* ---------- FINAL SCORE ---------- */
+  .final-plate{
+    text-align:center;
+    margin-top: 50px;
+    padding: 40px 24px;
+    border: 3px double var(--ink-soft);
+    background: var(--card);
+    position:relative;
+    display:none;
+  }
+  .final-plate .crest{
+    font-size: 30px;
+    margin-bottom: 8px;
+  }
+  .final-plate h2{
+    font-family:'Playfair Display', serif;
+    font-size: 30px;
+    margin: 0 0 14px;
+    color: var(--umber-dark);
+  }
+  .final-plate .score-big{
+    font-family:'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 56px;
+    color: var(--umber-dark);
+    line-height: 1;
+  }
+  .final-plate .score-sub{
+    font-family:'Special Elite', monospace;
+    font-size: 13px;
+    color: var(--brass);
+    letter-spacing: 0.1em;
+    margin-top: 6px;
+    text-transform: uppercase;
+  }
+  .final-plate .breakdown{
+    display:flex;
+    justify-content:center;
+    gap: 26px;
+    margin: 22px 0 6px;
+    flex-wrap: wrap;
+    font-family: 'Special Elite', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+  .final-plate .breakdown div b{
+    display:block;
+    font-family:'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--sage-dark);
+  }
+  .final-plate p.remark{
+    font-style: italic;
+    color: var(--ink-soft);
+    max-width: 480px;
+    margin: 18px auto 0;
+    font-size:16.5px;
+    line-height:1.5;
+  }
+  .final-quote{
+    margin-top: 20px;
+    font-family:'Playfair Display', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: var(--umber-dark);
+  }
+
+  .reset-btn{
+    margin-top: 24px;
+    font-family:'Special Elite', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform:uppercase;
+    background: var(--umber-dark);
+    color: #f4efe1;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 2px;
+    cursor:pointer;
+    transition: background 0.2s ease;
+  }
+  .reset-btn:hover{ background: var(--umber); }
+
+  .jump-btn{
+    margin-top: 24px;
+    margin-left: 10px;
+    font-family:'Special Elite', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform:uppercase;
+    background: transparent;
+    color: var(--umber-dark);
+    border: 1px solid var(--umber-dark);
+    padding: 11px 20px;
+    border-radius: 2px;
+    cursor:pointer;
+  }
+
+  footer.page-footer{
+    text-align:center;
+    margin-top: 60px;
+    font-family:'Special Elite', monospace;
+    font-size: 11px;
+    color: var(--brass);
+    letter-spacing:0.15em;
+    text-transform:uppercase;
+  }
+
+  @media (max-width: 520px){
+    .qtext{ font-size:18px; }
+    .card{ padding: 22px 16px 20px; }
+    h1{ font-size: 28px; }
+    .score-bar{ font-size: 10.5px; padding: 8px 12px;}
+    .final-plate .score-big{ font-size: 44px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="score-bar" id="scoreBar">
+  <div class="sb-left">
+    <span id="sbCount">0 / 20</span>
+    <div class="sb-track"><div class="sb-fill" id="sbFill"></div></div>
+  </div>
+  <div class="sb-score" id="sbScore">Score: 0</div>
+</div>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Fig. Plate No. 54 &nbsp;·&nbsp; Section VII</div>
+    <h1>The Leprosy Ledger</h1>
+    <p class="subtitle">A specimen quiz on Hansen's disease — for the Second Professional MBBS candidate</p>
+    <div class="plate-number">— compiled for private study, pp. 534–538 —</div>
+    <svg class="ornament" viewBox="0 0 130 14"><line x1="0" y1="7" x2="48" y2="7" stroke="#a9803d" stroke-width="1.5"/><circle cx="65" cy="7" r="4" fill="#6b4226"/><line x1="82" y1="7" x2="130" y2="7" stroke="#a9803d" stroke-width="1.5"/></svg>
+    <div class="focus-tags">
+      <span class="focus-tag">★ Heavy on Lab Diagnosis</span>
+      <span class="focus-tag">★ Heavy on Pathogenesis</span>
+      <span class="focus-tag">20 Specimen Items</span>
+    </div>
+  </header>
+
+  <div id="quizContainer"></div>
+
+  <div class="final-plate" id="finalPlate">
+    <div class="crest">❧ ❧ ❧</div>
+    <h2>Ledger Closed — Final Tally</h2>
+    <div class="score-big" id="scoreBig">0 / 20</div>
+    <div class="score-sub">Marks Obtained</div>
+    <div class="breakdown">
+      <div><b id="bdLab">0</b>Lab Diagnosis</div>
+      <div><b id="bdPath">0</b>Pathogenesis &amp; Immunity</div>
+      <div><b id="bdGen">0</b>General &amp; Treatment</div>
+    </div>
+    <p class="remark" id="finalRemark"></p>
+    <p class="final-quote" id="finalQuote"></p>
+    <div>
+      <button class="reset-btn" onclick="resetQuiz()">Examine Again</button>
+      <button class="jump-btn" onclick="window.scrollTo({top:0, behavior:'smooth'})">Back to Top</button>
+    </div>
+  </div>
+
+  <footer class="page-footer">Slit-Skin Smear · Oil Immersion Field · Est. Study Corner</footer>
+
+</div>
+
+<script>
+const motivQuotes = [
+  { t: "The good physician treats the disease; the great physician treats the patient who has the disease.", a: "Sir William Osler" },
+  { t: "It is not the mountain we conquer, but ourselves.", a: "Sir Edmund Hillary" },
+  { t: "Small steps, repeated daily, outrun a single leap taken once.", a: "Study Corner Proverb" },
+  { t: "Wherever the art of medicine is loved, there is also a love of humanity.", a: "Hippocrates" }
+];
+
+const questions = [
+  // -------- PATHOGENESIS / IMMUNE RESPONSE (high yield) --------
+  {
+    cat: "path",
+    hy: true,
+    q: "What determines whether an infected individual develops lepromatous (LL) versus tuberculoid (TT) leprosy?",
+    options: [
+      { t:"The route of entry of M. leprae — nasal versus dermal", correct:false, explain:"Portal of entry (nose or skin) affects transmission, not the clinical category a patient develops." },
+      { t:"The cell-mediated immune (CMI) status of the host", correct:true, explain:"Correct — people with low CMI usually develop LL type lesions, while people with intact CMI develop TT type lesions. CMI status is the deciding factor in the leprosy spectrum." },
+      { t:"The humoral antibody titre against M. leprae", correct:false, explain:"Humoral immunity plays only a minor role in disease control since M. leprae is intracellular; it does not determine the LL vs TT category." },
+      { t:"The bacteriological index at the time of first smear", correct:false, explain:"BI is a measurement made after the type of disease is already established — it's a consequence of the category, not its determinant." }
+    ]
+  },
+  {
+    cat: "path",
+    hy: true,
+    q: "In lepromatous leprosy (LL), what is the state of the lepromin test and why?",
+    options: [
+      { t:"Positive, because CMI is intact in LL patients", correct:false, explain:"CMI is grossly impaired, not intact, in LL patients — so this reasoning and result are both incorrect." },
+      { t:"Negative, because the CMI of the LL patient is grossly impaired", correct:true, explain:"Correct — in LL, CMI is grossly impaired, so the lepromin test (and lymphocyte transformation test) becomes negative, while humoral immunity is paradoxically exaggerated." },
+      { t:"Positive, due to an exaggerated TH2 antibody response", correct:false, explain:"The exaggerated TH2/antibody response in LL raises humoral immunity, but the lepromin test specifically reflects CMI (a TH1-driven DTH reaction), which is negative in LL." },
+      { t:"Indeterminate, requiring repeat testing at 21 days regardless of category", correct:false, explain:"The lepromin test result is a well-defined negative in LL and positive in TT — it is not simply 'indeterminate' by disease type." }
+    ]
+  },
+  {
+    cat: "path",
+    hy: true,
+    q: "Which T-helper response predominates in lepromatous leprosy, and what is its immunological consequence?",
+    options: [
+      { t:"TH1 predominance, causing increased IFN-gamma and IL-2, controlling bacillary spread", correct:false, explain:"TH1 predominance with IFN-gamma/IL-2 is the pattern seen in Type I lepra reactions (associated with borderline leprosy), not the baseline LL pattern." },
+      { t:"TH2 predominance, causing polyclonal B-cell activation and high-titre antibodies with little protective benefit", correct:true, explain:"Correct — LL patients show an exaggerated TH2 response releasing cytokines that cause polyclonal B-cell activation, producing high-titre specific and nonspecific antibodies that do little to control the intracellular organism." },
+      { t:"TH17 predominance, driving neutrophilic nerve abscess formation", correct:false, explain:"Nerve abscesses are a feature described with TT/BT leprosy, not attributed to a TH17 mechanism in the text." },
+      { t:"Treg predominance, suppressing all measurable immune activity", correct:false, explain:"The text specifically describes an exaggerated (not suppressed) TH2-driven antibody response in LL, not a Treg-dominant silent state." }
+    ]
+  },
+  {
+    cat: "path",
+    hy: true,
+    q: "Which type of lepra reaction is immune complex-mediated (Type III hypersensitivity) and associated with erythema nodosum leprosum (ENL)?",
+    options: [
+      { t:"Lepra reaction Type I", correct:false, explain:"Type I is a Type IV (delayed) hypersensitivity reaction, seen in borderline leprosy, manifesting as inflammation of existing lesions and neuritis — not ENL." },
+      { t:"Lepra reaction Type II", correct:true, explain:"Correct — Type II lepra reaction is Type III (immune complex-mediated) hypersensitivity, seen with lepromatous variants (BL, LL), presenting as crops of painful erythematous papules that become nodular — erythema nodosum leprosum (ENL)." },
+      { t:"Fernandez reaction", correct:false, explain:"The Fernandez reaction is the early (48-hour) lepromin test reading reflecting DTH to lepra antigen — unrelated to ENL." },
+      { t:"Mitsuda reaction", correct:false, explain:"The Mitsuda reaction is the late (21-day) lepromin test reading reflecting CMI status — not the ENL-producing reaction." }
+    ]
+  },
+  {
+    cat: "path",
+    q: "A Type I lepra reaction occurring AFTER initiation of treatment, progressing toward the tuberculoid pole, is termed:",
+    options: [
+      { t:"Downgrading reaction", correct:false, explain:"A downgrading reaction is when the Type I reaction occurs BEFORE treatment and progresses toward LL — the opposite direction and timing described here." },
+      { t:"Reversal reaction", correct:true, explain:"Correct — when a Type I lepra reaction occurs after treatment begins and shifts the patient toward the tuberculoid (TT) pole, it is called a reversal reaction." },
+      { t:"Mitsuda reaction", correct:false, explain:"The Mitsuda reaction is the 21-day lepromin skin test reading, unrelated to reaction-driven shifts along the leprosy spectrum." },
+      { t:"Lucio phenomenon", correct:false, explain:"This term does not appear in the text's description of lepra reactions; the correct term for a post-treatment shift toward TT is the reversal reaction." }
+    ]
+  },
+  {
+    cat: "path",
+    q: "Which nerve is most commonly involved in leprosy, according to the text?",
+    options: [
+      { t:"Ulnar nerve", correct:true, explain:"Correct — the ulnar nerve is stated as the most commonly involved nerve in leprosy, followed by the post-auricular nerve." },
+      { t:"Median nerve", correct:false, explain:"The median nerve is not specifically named as the most common site of involvement in this text." },
+      { t:"Post-auricular nerve", correct:false, explain:"The post-auricular nerve is the second most commonly involved nerve, following the ulnar nerve, not the most common." },
+      { t:"Medial popliteal nerve", correct:false, explain:"The medial popliteal nerve is explicitly stated to be NEVER involved in leprosy." }
+    ]
+  },
+
+  // -------- LAB DIAGNOSIS (high yield, largest share) --------
+  {
+    cat: "lab",
+    hy: true,
+    q: "What staining technique is used for slit-skin smears in leprosy, and why does it differ from the standard method for tubercle bacilli?",
+    options: [
+      { t:"Ziehl-Neelsen technique using 20% sulfuric acid, because M. leprae is more strongly acid-fast than M. tuberculosis", correct:false, explain:"M. leprae is LESS acid-fast than tubercle bacilli, not more — so a weaker (not stronger) decolorizer concentration is used." },
+      { t:"Ziehl-Neelsen technique using 5% sulfuric acid, because M. leprae is less acid-fast than tubercle bacilli", correct:true, explain:"Correct — since M. leprae is less acid-fast than the tubercle bacillus, a weaker decolorizing agent (5% sulfuric acid instead of the usual stronger acid-alcohol) is used to avoid over-decolorizing it." },
+      { t:"Gram staining, because M. leprae does not retain carbol fuchsin at all", correct:false, explain:"M. leprae IS acid-fast (just weakly so) and is demonstrated by a modified Ziehl-Neelsen method, not Gram stain." },
+      { t:"Auramine-rhodamine fluorescent stain exclusively, as it cannot be visualized by light microscopy", correct:false, explain:"The described routine method is Ziehl-Neelsen with oil immersion light microscopy, not fluorescent staining." }
+    ]
+  },
+  {
+    cat: "lab",
+    hy: true,
+    q: "In a slit-skin smear, what is the total number of standard specimen sites sampled, and from where?",
+    options: [
+      { t:"Four sites — all from skin lesions only", correct:false, explain:"The total is six sites, and they are not all from skin lesions — one site is the ear lobe and one is nasal mucosa." },
+      { t:"Six sites — four from skin (forehead, cheek, chin, buttock), one from ear lobe, one from nasal mucosa", correct:true, explain:"Correct — a total of six samples are taken: four skin sites (forehead, cheek, chin, buttock), one ear lobe sample, and one nasal mucosa sample (by blow or scraping)." },
+      { t:"Two sites — one nasal swab and one skin biopsy", correct:false, explain:"This undercounts the standard protocol; the correct total is six distinct sites as listed in the text." },
+      { t:"Eight sites, including both palms and soles", correct:false, explain:"Palms and soles are not part of the standard six-site slit-skin smear protocol described." }
+    ]
+  },
+  {
+    cat: "lab",
+    hy: true,
+    q: "Where on a skin lesion is the slit-skin smear preferentially taken from, and how is the specimen obtained?",
+    options: [
+      { t:"The center of the lesion, using a fine needle aspiration technique", correct:false, explain:"The preferred site is the EDGE of the lesion, not the center, and the technique is an incision/scrape, not needle aspiration." },
+      { t:"The edge of the lesion, via a scalpel incision followed by scraping the sides and base to obtain tissue pulp", correct:true, explain:"Correct — the edge of the lesion is preferred; a 5 mm incision is made deep enough to reach infiltrated layers, blood/lymph is wiped off, and the blade is rotated transversely to scrape tissue pulp, smeared over an 8 mm area." },
+      { t:"Any convenient site chosen at random, using a cotton swab", correct:false, explain:"A specific, standardized site (lesion edge) and instrument (scalpel incision and scrape) are required — not a random swab." },
+      { t:"The nasal septum only, using a mucosal scraper", correct:false, explain:"Nasal mucosal scraping is a separate, distinct technique used for nasal specimens, not for slit-skin smears of cutaneous lesions." }
+    ]
+  },
+  {
+    cat: "lab",
+    hy: true,
+    q: "The Bacteriological Index (BI) in leprosy is calculated as:",
+    options: [
+      { t:"The percentage of uniformly-stained (live) bacilli out of the total bacilli counted", correct:false, explain:"That definition describes the Morphological Index (MI), not the Bacteriological Index." },
+      { t:"The total of pluses scored in all smears examined, divided by the number of smears examined", correct:true, explain:"Correct — BI is based on total bacilli (live and dead) per oil immersion field, calculated by totalling the pluses scored across all smears and dividing by the number of smears examined." },
+      { t:"The number of granulomas seen per high-power field on skin biopsy", correct:false, explain:"BI is a smear-based bacillary count, not a histological granuloma count." },
+      { t:"A binary positive/negative result with no numeric grading", correct:false, explain:"BI is explicitly graded on a numeric scale (1+ to 6+ based on bacilli per oil immersion field), not simply positive/negative." }
+    ]
+  },
+  {
+    cat: "lab",
+    hy: true,
+    q: "Which index is considered a better marker of treatment response than the Bacteriological Index (BI), and why?",
+    options: [
+      { t:"Morphological Index (MI), because it falls with clinical improvement while BI may remain unchanged", correct:true, explain:"Correct — MI (the percentage of uniformly-stained/live bacilli) is a better marker to monitor treatment response; following clinical improvement, MI falls, whereas BI may remain the same since it counts both live and dead bacilli." },
+      { t:"SFG percentage, because it directly measures antibody titres", correct:false, explain:"SFG percentage refers to solid/fragmented/granular rod percentage on smear morphology — it does not measure antibody titres." },
+      { t:"Bacteriological Index itself, because it changes faster than any other index", correct:false, explain:"The text states the opposite — BI may remain unchanged even with clinical improvement, which is exactly why MI is preferred for monitoring response." },
+      { t:"Lepromin test score, because it turns negative rapidly with effective treatment", correct:false, explain:"The lepromin test is not used to monitor treatment response — it is used for classifying lesions and as a prognostic indicator, and it is not a routine diagnostic or monitoring test." }
+    ]
+  },
+  {
+    cat: "lab",
+    hy: true,
+    q: "Why is mouse foot pad cultivation of M. leprae still used despite being time-consuming?",
+    options: [
+      { t:"It is the only way to confirm Koch's postulates for M. leprae directly in humans", correct:false, explain:"The text notes M. leprae does NOT follow Koch's postulates because it cannot be cultivated in artificial media or tissue culture — foot pad inoculation is used for other reasons." },
+      { t:"It is 10 times more sensitive than microscopy, and useful for detecting drug resistance, drug potency, and bacillary viability", correct:true, explain:"Correct — despite taking 6–9 months and raising ethical concerns about animal use, mouse foot pad cultivation is 10 times more sensitive than microscopy and useful for detecting drug resistance, evaluating drug potency, and assessing viability of bacilli." },
+      { t:"It replaces the need for slit-skin smear examination entirely", correct:false, explain:"Foot pad cultivation is a supplementary research/reference method, not a replacement for the routine slit-skin smear." },
+      { t:"It provides results within 24-48 hours, faster than any other test", correct:false, explain:"It is explicitly described as time-consuming, requiring 6–9 months at 20°C — the opposite of a rapid test." }
+    ]
+  },
+  {
+    cat: "lab",
+    hy: true,
+    q: "Regarding the lepromin test: what does a positive Mitsuda (late) reaction at 21 days indicate?",
+    options: [
+      { t:"Active current infection requiring immediate treatment", correct:false, explain:"The lepromin test is explicitly stated as NOT used for diagnosis of active infection — it reflects CMI status and prognosis, not current disease activity." },
+      { t:"Intact CMI, usually seen in TT cases, with a good prognosis", correct:true, explain:"Correct — a positive Mitsuda reaction (nodule >5 mm at 21 days that may ulcerate) indicates intact CMI, typically seen in TT cases, and is associated with a good prognosis." },
+      { t:"Absence of CMI, typically seen in LL cases with poor prognosis", correct:false, explain:"This describes a NEGATIVE Mitsuda reaction, not a positive one." },
+      { t:"Past exposure to lepra bacilli only, with no prognostic value", correct:false, explain:"Past exposure with no prognostic value describes the EARLY (48-hour) Fernandez reaction; the late Mitsuda reaction does carry prognostic significance." }
+    ]
+  },
+  {
+    cat: "lab",
+    q: "Which antibody detection test for leprosy is described as widely used to identify subclinical cases, claiming 92% sensitivity and 100% specificity?",
+    options: [
+      { t:"ELISA for anti-PGL-1 IgM antibodies", correct:false, explain:"ELISA for PGL-1 antibodies is described as 95% positive in untreated LL but with low (60%) sensitivity in TT patients — different figures from the ones in this question." },
+      { t:"FLA-ABS (Fluorescent Leprosy Antibody Absorption test)", correct:true, explain:"Correct — FLA-ABS is widely used to identify subclinical cases, detects M. leprae-specific antibodies regardless of duration or stage of disease, and claims 92% sensitivity and 100% specificity." },
+      { t:"Western blot for M. leprae membrane proteins", correct:false, explain:"This test is not mentioned in the chapter as part of leprosy antibody diagnostics." },
+      { t:"Lepromin skin test", correct:false, explain:"The lepromin test is a CMI (delayed hypersensitivity) test, not an antibody detection test." }
+    ]
+  },
+  {
+    cat: "lab",
+    q: "The grading '>1000 bacilli or bacilli in clumps and globi in each oil immersion field' corresponds to which bacteriological index score?",
+    options: [
+      { t:"3+", correct:false, explain:"3+ corresponds to a lower density: 1–10 bacilli per oil immersion field." },
+      { t:"4+", correct:false, explain:"4+ corresponds to 10–100 bacilli per oil immersion field, a lower density than described." },
+      { t:"5+", correct:false, explain:"5+ corresponds to 100–1000 bacilli per oil immersion field — this question describes an even higher density." },
+      { t:"6+", correct:true, explain:"Correct — the highest grade, 6+, is assigned when there are more than 1000 bacilli, or bacilli present in clumps and globi, in each oil immersion field." }
+    ]
+  },
+
+  // -------- GENERAL / CLASSIFICATION / TREATMENT --------
+  {
+    cat: "gen",
+    q: "Who is credited with the discovery of the lepra bacillus, and in which year?",
+    options: [
+      { t:"Robert Koch, in 1882", correct:false, explain:"Robert Koch is famous for discovering M. tuberculosis in 1882, a different organism entirely." },
+      { t:"GH Armauer Hansen, in 1873", correct:true, explain:"Correct — GH Armauer Hansen discovered the lepra bacillus in Norway in 1873, which is why leprosy is also called Hansen's disease." },
+      { t:"Shepard, in 1960", correct:false, explain:"Shepard's 1960 breakthrough was multiplying lepra bacilli in mouse foot pads, not the original discovery of the organism." },
+      { t:"Mitsuda, in 1919", correct:false, explain:"Mitsuda is credited with discovering the lepromin test in 1919, not the discovery of the lepra bacillus itself." }
+    ]
+  },
+  {
+    cat: "gen",
+    q: "A patient has 6 skin lesions with no nerve involvement and a negative slit-skin smear. According to the clinical classification, this case is:",
+    options: [
+      { t:"Paucibacillary (PB) leprosy, since the smear is negative", correct:false, explain:"MB status is defined if ANY ONE criterion is met — and having more than 5 skin lesions (6 in this case) alone is sufficient to classify as multibacillary, regardless of smear or nerve status." },
+      { t:"Multibacillary (MB) leprosy, because it has more than 5 skin lesions", correct:true, explain:"Correct — MB leprosy is defined by fulfilling ANY ONE of: >5 skin lesions, nerve involvement, or smear positivity. Since this patient has 6 lesions (>5), the case is MB even though the smear is negative and nerves are spared." },
+      { t:"Indeterminate leprosy, since criteria conflict", correct:false, explain:"There is no conflict — the >5 lesion criterion alone is sufficient for MB classification; indeterminate is a separate clinical entity with early hypopigmented macules." },
+      { t:"Cannot be classified without a lepromin test result", correct:false, explain:"The clinical PB/MB classification relies on lesion count, nerve involvement, and smear status — not the lepromin test, which is not part of these criteria." }
+    ]
+  },
+  {
+    cat: "gen",
+    q: "Which of the following is a hallmark clinical feature distinguishing tuberculoid leprosy (TT) skin lesions from lepromatous (LL) lesions?",
+    options: [
+      { t:"TT lesions are many and symmetrical with irregular margins; LL lesions are few and sharply demarcated", correct:false, explain:"This is reversed — LL lesions are the ones that are many, symmetrical, with irregular margins, while TT lesions are few, asymmetric, and sharply demarcated." },
+      { t:"TT lesions are few, asymmetric, and sharply demarcated hypopigmented annular macules with elevated borders", correct:true, explain:"Correct — TT lesions are few, asymmetric, sharply demarcated hypopigmented macules with elevated borders and a tendency towards central clearing, unlike the many symmetrical irregular-margin lesions of LL." },
+      { t:"TT lesions characteristically show leonine facies", correct:false, explain:"Leonine facies is a classic feature of lepromatous leprosy (LL) due to multiple facial nodules, not tuberculoid leprosy." },
+      { t:"TT lesions show foamy, lipid-laden macrophages on histology", correct:false, explain:"Foamy, lipid-laden macrophages (Virchow's lepra cells) are characteristic of LL; TT shows an epithelioid cell response instead." }
+    ]
+  },
+  {
+    cat: "gen",
+    q: "What is the WHO-recommended multidrug therapy (MDT) regimen and its duration for multibacillary (MB) leprosy?",
+    options: [
+      { t:"Dapsone and rifampicin only, for 6 months", correct:false, explain:"This omits clofazimine and understates the duration — the 3-drug MB regimen runs for 12 months, not 6." },
+      { t:"Rifampicin, dapsone, and clofazimine, for 12 months", correct:true, explain:"Correct — WHO's 3-drug regimen (rifampicin, dapsone, clofazimine) is given for 6 months in paucibacillary leprosy and 12 months in multibacillary leprosy." },
+      { t:"Rifampicin, dapsone, and clofazimine, for 6 months", correct:false, explain:"6 months is the correct duration for PAUCIBACILLARY leprosy, not multibacillary, which requires 12 months." },
+      { t:"Ethionamide and clarithromycin, for 24 months", correct:false, explain:"These are listed as alternate drugs, not the first-line WHO regimen, and the duration given is incorrect." }
+    ]
+  },
+  {
+    cat: "gen",
+    q: "Regarding transmission and prevention of leprosy, which statement is correct?",
+    options: [
+      { t:"Tuberculoid leprosy cases are the most important source of infection", correct:false, explain:"It is the multibacillary (LL and BL) cases that are the most important sources of infection; TT cases do not transmit infection efficiently." },
+      { t:"Nasal droplet infection from an untreated LL patient is the most common mode of transmission", correct:true, explain:"Correct — nasal droplet infection is the most common mode; a sneeze from an untreated LL patient may contain more than 10^10 lepra bacilli." },
+      { t:"Dapsone chemoprophylaxis is recommended for household contacts of lepromatous patients", correct:false, explain:"The text states dapsone chemoprophylaxis may help for contacts of TUBERCULOID patients but is not recommended for contacts of lepromatous patients." },
+      { t:"India achieved leprosy elimination status in the year 2000, as originally targeted by WHO", correct:false, explain:"WHO's original target year was 2000, but India actually achieved elimination status later, in December 2005." }
+    ]
+  }
+];
+
+// shuffle categories a bit for pacing but keep hy(path/lab) spread — we'll just use as authored, insert quotes
+const container = document.getElementById('quizContainer');
+const sbCount = document.getElementById('sbCount');
+const sbFill = document.getElementById('sbFill');
+const sbScore = document.getElementById('sbScore');
+const finalPlate = document.getElementById('finalPlate');
+const scoreBig = document.getElementById('scoreBig');
+const bdLab = document.getElementById('bdLab');
+const bdPath = document.getElementById('bdPath');
+const bdGen = document.getElementById('bdGen');
+const finalRemark = document.getElementById('finalRemark');
+const finalQuote = document.getElementById('finalQuote');
+
+let answered = 0;
+let score = 0;
+const total = questions.length;
+const catScore = { lab:0, path:0, gen:0 };
+const catTotal = { lab:0, path:0, gen:0 };
+questions.forEach(q => catTotal[q.cat]++);
+
+function letterFor(i){ return String.fromCharCode(65+i); }
+function catLabel(c){
+  if(c==='lab') return 'Lab Diagnosis';
+  if(c==='path') return 'Pathogenesis / Immunity';
+  return 'General';
+}
+
+function buildQuiz(){
+  container.innerHTML = '';
+  questions.forEach((q, qi) => {
+    // insert a quote card every 6 questions
+    if(qi > 0 && qi % 6 === 0){
+      const quote = motivQuotes[(qi/6 - 1) % motivQuotes.length];
+      const qc = document.createElement('div');
+      qc.className = 'quote-card';
+      qc.innerHTML = `<p class="quote-text">"${quote.t}"</p><p class="quote-attr">— ${quote.a}</p>`;
+      container.appendChild(qc);
+    }
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.id = 'card-' + qi;
+
+    const head = document.createElement('div');
+    head.className = 'card-head';
+    head.innerHTML = `<span class="qnum">${String(qi+1).padStart(2,'0')}</span><span class="qmeta ${q.hy ? 'hy':''}">${q.hy ? '★ High-Yield · ' : ''}${catLabel(q.cat)}</span>`;
+    card.appendChild(head);
+
+    const qtext = document.createElement('div');
+    qtext.className = 'qtext';
+    qtext.textContent = q.q;
+    card.appendChild(qtext);
+
+    const optsWrap = document.createElement('div');
+    optsWrap.className = 'options';
+
+    q.options.forEach((opt, oi) => {
+      const optDiv = document.createElement('div');
+      optDiv.className = 'option';
+      optDiv.innerHTML = `<span class="letter">${letterFor(oi)}</span><span class="otext">${opt.t}</span>`;
+
+      const explainBox = document.createElement('div');
+      explainBox.className = 'explain-box';
+      explainBox.innerHTML = `<span class="verdict ${opt.correct ? 'right':'wrong'}">${opt.correct ? '✓ Correct' : '✗ Not quite'}</span>${opt.explain}`;
+
+      optDiv.addEventListener('click', () => {
+        if (optDiv.classList.contains('locked')) return;
+        selectOption(q, qi, oi, optDiv, explainBox, optsWrap);
+      });
+
+      const holder = document.createElement('div');
+      holder.appendChild(optDiv);
+      holder.appendChild(explainBox);
+      optsWrap.appendChild(holder);
+    });
+
+    card.appendChild(optsWrap);
+    container.appendChild(card);
+  });
+}
+
+function selectOption(q, qi, oi, optDiv, explainBox, optsWrap){
+  const opt = q.options[oi];
+  const allOptionDivs = optsWrap.querySelectorAll('.option');
+  const allExplainBoxes = optsWrap.querySelectorAll('.explain-box');
+
+  allOptionDivs.forEach(o => { o.classList.add('locked','disabled'); });
+
+  if(opt.correct){
+    optDiv.classList.add('correct');
+    score++;
+    catScore[q.cat]++;
+  } else {
+    optDiv.classList.add('incorrect');
+    allOptionDivs.forEach((o, idx) => {
+      if(q.options[idx].correct){
+        o.classList.add('correct');
+        allExplainBoxes[idx].classList.add('show');
+      }
+    });
+  }
+  explainBox.classList.add('show');
+
+  allOptionDivs.forEach((o, idx) => {
+    if(idx !== oi && !q.options[idx].correct){
+      o.classList.add('dim');
+    }
+  });
+
+  answered++;
+  updateProgress();
+  if(answered === total){
+    setTimeout(showFinal, 350);
+  }
+}
+
+function updateProgress(){
+  sbCount.textContent = `${answered} / ${total}`;
+  sbScore.textContent = `Score: ${score}`;
+  sbFill.style.width = (answered/total*100) + '%';
+}
+
+function showFinal(){
+  finalPlate.style.display = 'block';
+  scoreBig.textContent = `${score} / ${total}`;
+  bdLab.textContent = `${catScore.lab}/${catTotal.lab}`;
+  bdPath.textContent = `${catScore.path}/${catTotal.path}`;
+  bdGen.textContent = `${catScore.gen}/${catTotal.gen}`;
+
+  const pct = score/total;
+  let remark = '';
+  if(pct === 1) remark = "A flawless ledger. Every diagnostic sign and immune pathway is firmly in your grasp — carry this confidence into the exam hall.";
+  else if(pct >= 0.8) remark = "An excellent result. Just polish the few missed points and this chapter is exam-ready.";
+  else if(pct >= 0.6) remark = "A solid attempt. Revisit lab diagnosis grading (BI, MI) and the TH1/TH2 immune pathways once more.";
+  else if(pct >= 0.4) remark = "A fair start. Re-read the immune response and laboratory diagnosis sections closely — that's where most marks live.";
+  else remark = "Every expert was once a beginner. Return to pages 534–538, rebuild the foundation, and try again — you've got this.";
+  finalRemark.textContent = remark;
+
+  const fq = motivQuotes[Math.floor(Math.random()*motivQuotes.length)];
+  finalQuote.textContent = `"${fq.t}" — ${fq.a}`;
+
+  finalPlate.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function resetQuiz(){
+  answered = 0;
+  score = 0;
+  catScore.lab = 0; catScore.path = 0; catScore.gen = 0;
+  finalPlate.style.display = 'none';
+  buildQuiz();
+  updateProgress();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+buildQuiz();
+updateProgress();
+</script>
+
+</body>
+</html>
