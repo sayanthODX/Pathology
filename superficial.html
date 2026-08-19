@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Superficial Mycoses — Quiz</title>
+<style>
+  :root{
+    --bg:#0f1420;
+    --card:#151b2b;
+    --accent:#5ea1ff;
+    --accent2:#7c5cff;
+    --good:#3ddc84;
+    --bad:#ff5c7a;
+    --text:#e8ecf7;
+    --muted:#8b94ab;
+    --border:#26304a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Segoe UI', Roboto, -apple-system, sans-serif;
+    background:linear-gradient(160deg,#0b0f19,#141a2b 60%,#0f1420);
+    color:var(--text);
+    min-height:100vh;
+    padding:24px 14px 60px;
+  }
+  .wrap{max-width:700px;margin:0 auto;}
+  header{text-align:center;margin-bottom:20px;}
+  header h1{
+    font-size:1.4rem;
+    margin:0 0 6px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  header p{color:var(--muted);font-size:0.85rem;margin:0;}
+
+  .progress-container{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:14px 16px;
+    margin-bottom:18px;
+  }
+  .progress-top{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:0.8rem;color:var(--muted);margin-bottom:8px;
+  }
+  .progress-bar-bg{
+    width:100%;height:8px;border-radius:6px;background:#1e2740;overflow:hidden;
+  }
+  .progress-bar-fill{
+    height:100%;border-radius:6px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    width:0%;
+    transition:width .35s ease;
+  }
+  .score-pill{
+    display:inline-block;background:#1e2740;border-radius:20px;
+    padding:3px 10px;font-weight:600;color:var(--good);
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:20px;
+    margin-bottom:16px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.25);
+  }
+  .qmeta{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:0.75rem;color:var(--muted);margin-bottom:10px;
+  }
+  .qtag{
+    background:rgba(94,161,255,0.15);
+    color:var(--accent);
+    padding:2px 9px;
+    border-radius:20px;
+    font-weight:600;
+    letter-spacing:.3px;
+  }
+  .qtext{
+    font-size:1.05rem;
+    font-weight:600;
+    margin-bottom:16px;
+    line-height:1.45;
+  }
+  .options{display:flex;flex-direction:column;gap:10px;}
+  .option{
+    text-align:left;
+    background:#1a2236;
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:12px 14px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:0.95rem;
+    transition:all .15s ease;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .option:hover:not(.locked){
+    border-color:var(--accent);
+    background:#20293f;
+  }
+  .option .letter{
+    width:24px;height:24px;flex:none;
+    border-radius:50%;
+    background:#26304a;
+    display:flex;align-items:center;justify-content:center;
+    font-size:0.75rem;font-weight:700;color:var(--muted);
+  }
+  .option.correct{
+    border-color:var(--good);
+    background:rgba(61,220,132,0.12);
+  }
+  .option.correct .letter{background:var(--good);color:#08170f;}
+  .option.incorrect{
+    border-color:var(--bad);
+    background:rgba(255,92,122,0.12);
+  }
+  .option.incorrect .letter{background:var(--bad);color:#1a0509;}
+  .option.locked{cursor:default;}
+  .option.dim{opacity:0.5;}
+
+  .explanation{
+    margin-top:14px;
+    padding:12px 14px;
+    border-radius:10px;
+    background:#101526;
+    border-left:3px solid var(--accent2);
+    font-size:0.88rem;
+    color:#c9d2ea;
+    line-height:1.5;
+    display:none;
+  }
+  .explanation b{color:var(--accent);}
+  .explanation.show{display:block;}
+
+  .nav-row{
+    display:flex;justify-content:space-between;gap:10px;margin-top:16px;
+  }
+  button.nav-btn{
+    flex:1;
+    background:#1a2236;
+    color:var(--text);
+    border:1px solid var(--border);
+    padding:11px;
+    border-radius:10px;
+    font-size:0.9rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  button.nav-btn:hover{border-color:var(--accent);}
+  button.nav-btn:disabled{opacity:0.35;cursor:not-allowed;}
+  button.primary{
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    border:none;color:#0a0e18;
+  }
+
+  .result-screen{
+    text-align:center;padding:30px 20px;
+  }
+  .result-screen h2{font-size:1.6rem;margin-bottom:6px;}
+  .result-score{
+    font-size:2.6rem;font-weight:800;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    margin:10px 0;
+  }
+  .result-msg{color:var(--muted);margin-bottom:20px;font-size:0.9rem;}
+  .restart-btn{
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    border:none;color:#0a0e18;padding:12px 26px;border-radius:12px;
+    font-weight:700;font-size:0.95rem;cursor:pointer;
+  }
+  .dots-row{
+    display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:20px 0;
+  }
+  .dot{
+    width:12px;height:12px;border-radius:50%;background:#26304a;
+  }
+  .dot.correct{background:var(--good);}
+  .dot.incorrect{background:var(--bad);}
+
+  #hideAtEnd{display:block;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🍄 Superficial Mycoses</h1>
+    <p>Tinea Versicolor · Tinea Nigra · Piedra · Dermatophytoses (Chapter 58)</p>
+  </header>
+
+  <div class="progress-container" id="hideAtEnd">
+    <div class="progress-top">
+      <span id="qCounter">Question 1 of 30</span>
+      <span class="score-pill" id="scorePill">Score: 0</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <div id="quizArea"></div>
+
+  <div class="card result-screen" id="resultScreen" style="display:none;">
+    <h2>Quiz Complete! 🎉</h2>
+    <div class="result-score" id="finalScore">0/30</div>
+    <div class="result-msg" id="finalMsg"></div>
+    <div class="dots-row" id="dotsRow"></div>
+    <button class="restart-btn" onclick="restartQuiz()">Restart Quiz</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+{
+  tag:"Superficial Mycoses",
+  q:"Which fungus is responsible for tinea versicolor?",
+  options:["Malassezia furfur","Trichophyton rubrum","Hortaea werneckii","Piedraia hortae"],
+  correct:"Malassezia furfur",
+  exp:"<b>Malassezia furfur</b>, a lipophilic yeast, causes tinea versicolor (pityriasis versicolor), affecting the stratum corneum and producing hypo- to hyperpigmented patches."
+},
+{
+  tag:"Superficial Mycoses",
+  q:"The classic microscopic appearance of Malassezia furfur on KOH mount is described as:",
+  options:["Spaghetti and meatballs","Copper pennies","Flower-like sporulation","Ectothrix arthrospores"],
+  correct:"Spaghetti and meatballs",
+  exp:"Direct microscopy of skin scrapings shows a mixture of budding yeast cells and short septate hyphae, classically described as the <b>'spaghetti and meatballs'</b> appearance."
+},
+{
+  tag:"Superficial Mycoses",
+  q:"Which culture medium and condition is ideal for growing Malassezia furfur?",
+  options:["SDA with olive oil overlay","Blood agar at 37°C","Lowenstein-Jensen medium","SDA with cycloheximide"],
+  correct:"SDA with olive oil overlay",
+  exp:"Since <b>M. furfur is lipophilic</b>, Sabouraud dextrose agar (SDA) overlaid with olive oil is the ideal culture medium; colonies appear after 5–7 days at 32–35°C."
+},
+{
+  tag:"Superficial Mycoses",
+  q:"Under Wood's lamp examination, tinea versicolor lesions typically show:",
+  options:["Golden yellow fluorescence","Bright green fluorescence","No fluorescence","Blue-white fluorescence"],
+  correct:"Golden yellow fluorescence",
+  exp:"Under Wood's lamp, tinea versicolor scaly lesions characteristically show <b>golden yellow fluorescence</b>."
+},
+{
+  tag:"Superficial Mycoses",
+  q:"Which of the following is the drug of choice for tinea versicolor?",
+  options:["Selenium sulfide shampoo","Amphotericin B","Amikacin plus cotrimoxazole","Dapsone"],
+  correct:"Selenium sulfide shampoo",
+  exp:"Treatment of tinea versicolor includes topical <b>selenium sulfide shampoo</b>, ketoconazole shampoo/cream, or terbinafine cream for 2 weeks."
+},
+{
+  tag:"Superficial Mycoses",
+  q:"Tinea nigra, characterized by painless black non-scaly patches on palm and sole, is caused by:",
+  options:["Hortaea werneckii","Trichosporon beigelii","Piedraia hortae","Malassezia furfur"],
+  correct:"Hortaea werneckii",
+  exp:"Tinea nigra is caused by <b>Hortaea werneckii</b>, a black-colored yeast-like fungus, and is more common in females."
+},
+{
+  tag:"Superficial Mycoses",
+  q:"White piedra, characterized by loosely attached white nodules on the hair shaft, is caused by:",
+  options:["Trichosporon beigelii","Piedraia hortae","Hortaea werneckii","Malassezia furfur"],
+  correct:"Trichosporon beigelii",
+  exp:"White piedra is caused by <b>Trichosporon beigelii</b>, a urease-positive yeast-like fungus that produces creamy white colonies with rectangular arthrospores on the hair shaft."
+},
+{
+  tag:"Superficial Mycoses",
+  q:"Black piedra, with firmly attached black nodules on hair shaft, is caused by:",
+  options:["Piedraia hortae","Trichosporon beigelii","Hortaea werneckii","Sporothrix schenckii"],
+  correct:"Piedraia hortae",
+  exp:"Black piedra is caused by <b>Piedraia hortae</b>, a phaeoid fungus producing reddish-brown colonies with dark brown septate hyphae and asci containing ascospores."
+},
+{
+  tag:"Superficial Mycoses",
+  q:"Which genus of dermatophytes can infect skin, hair, AND nail?",
+  options:["Trichophyton","Microsporum","Epidermophyton","Malassezia"],
+  correct:"Trichophyton",
+  exp:"<b>Trichophyton</b> species infect skin, hair, and nail; Microsporum infects skin and hair only; Epidermophyton infects skin and nail only."
+},
+{
+  tag:"Superficial Mycoses",
+  q:"Which genus of dermatophytes does NOT affect the nail?",
+  options:["Microsporum","Trichophyton","Epidermophyton","All of the above affect nails"],
+  correct:"Microsporum",
+  exp:"<b>Microsporum</b> species infect skin and hair only, sparing the nails — unlike Trichophyton (skin, hair, nail) and Epidermophyton (skin, nail)."
+},
+{
+  tag:"Superficial Mycoses",
+  q:"Anthropophilic dermatophytes, compared to zoophilic/geophilic species, typically produce:",
+  options:["Mild, chronic lesions that respond poorly to treatment","Severe acute inflammatory lesions that resolve quickly","No cutaneous lesions at all","Only systemic disseminated disease"],
+  correct:"Mild, chronic lesions that respond poorly to treatment",
+  exp:"Anthropophilic dermatophytes are well adapted to humans and cause relatively <b>mild, chronic lesions that respond poorly to treatment</b>, whereas zoophilic/geophilic species cause more acute, severe but self-limiting infections."
+},
+{
+  tag:"Superficial Mycoses",
+  q:"A painful, boggy, inflammatory lesion on the scalp caused by Trichophyton verrucosum is called:",
+  options:["Kerion","Favus","Ectothrix","Endothrix"],
+  correct:"Kerion",
+  exp:"<b>Kerion</b> is a painful inflammatory reaction on the scalp producing boggy lesions, caused by Trichophyton verrucosum, a type of tinea capitis."
+},
+{
+  tag:"Superficial Mycoses",
+  q:"Cup-like crusts (scutula) around infected hair follicles with minimal hair shaft involvement describe:",
+  options:["Favus","Kerion","Endothrix","Tinea imbricata"],
+  correct:"Favus",
+  exp:"<b>Favus</b>, caused by Trichophyton schoenleinii, presents as a cup-like crust (scutula) around the infected hair follicle."
+},
+{
+  tag:"Superficial Mycoses",
+  q:"Arthrospores formed within the hair shaft (completely filling it, causing alopecia) is called:",
+  options:["Endothrix","Ectothrix","Favus","Kerion"],
+  correct:"Endothrix",
+  exp:"<b>Endothrix</b> infection (caused by T. tonsurans and T. violaceum) has arthrospores within the hair shaft, completely filling it, which can result in alopecia."
+},
+{
+  tag:"Superficial Mycoses",
+  q:"Arthrospores formed on the surface of the hair shaft is termed:",
+  options:["Ectothrix","Endothrix","Favus","Sclerotic body"],
+  correct:"Ectothrix",
+  exp:"<b>Ectothrix</b> infection (caused by M. audouinii, M. canis, and T. mentagrophytes) shows arthrospores on the surface of the hair shaft."
+},
+{
+  tag:"Superficial Mycoses",
+  q:"Infection of the web space between the toes, spreading to the sole in a 'moccasin' pattern, is:",
+  options:["Tinea pedis","Tinea cruris","Tinea corporis","Tinea manuum"],
+  correct:"Tinea pedis",
+  exp:"<b>Tinea pedis</b> (athlete's foot) infects the web space between toes and spreads to the sole in a characteristic moccasin pattern."
+},
+{
+  tag:"Superficial Mycoses",
+  q:"Infection of the groin area is termed:",
+  options:["Tinea cruris","Tinea corporis","Tinea barbae","Tinea faciei"],
+  correct:"Tinea cruris",
+  exp:"<b>Tinea cruris</b> (jock itch) is dermatophyte infection of the groin area."
+},
+{
+  tag:"Superficial Mycoses",
+  q:"Which dermatophyte(s) are the most frequent agents of tinea unguium (nail plate infection)?",
+  options:["T. mentagrophytes and E. floccosum","M. canis and M. audouinii","T. schoenleinii and T. violaceum","Malassezia furfur"],
+  correct:"T. mentagrophytes and E. floccosum",
+  exp:"Tinea unguium (nail infection) is most commonly caused by <b>Trichophyton mentagrophytes and Epidermophyton floccosum</b>."
+},
+{
+  tag:"Superficial Mycoses",
+  q:"The hair perforation test, used to differentiate dermatophytes, is characteristically positive for:",
+  options:["Trichophyton mentagrophytes and Microsporum canis","Epidermophyton floccosum only","Trichophyton rubrum only","Malassezia furfur"],
+  correct:"Trichophyton mentagrophytes and Microsporum canis",
+  exp:"The hair perforation test is positive for <b>T. mentagrophytes and M. canis</b>, producing wedge-shaped perforations of hair in vitro."
+},
+{
+  tag:"Superficial Mycoses",
+  q:"Which dermatophyte test is positive specifically for Trichophyton mentagrophytes?",
+  options:["Urease test","Germ tube test","Latex agglutination test","Dalmau plate culture"],
+  correct:"Urease test",
+  exp:"<b>Trichophyton mentagrophytes is urease positive</b>, which helps differentiate it from T. rubrum (urease negative)."
+},
+{
+  tag:"Superficial Mycoses",
+  q:"Macroconidia of Microsporum species are typically:",
+  options:["Numerous, thick walled, rough, spindle shaped","Rare, thin walled, smooth, pencil shaped","Numerous, smooth walled, club shaped","Absent"],
+  correct:"Numerous, thick walled, rough, spindle shaped",
+  exp:"<b>Microsporum</b> macroconidia are numerous, thick-walled, rough, and spindle-shaped, while microconidia are rare — the reverse pattern from Trichophyton."
+},
+{
+  tag:"Superficial Mycoses",
+  q:"Duration of treatment for onychomycosis (nail dermatophytosis) with oral terbinafine/itraconazole is typically:",
+  options:["3 months","1–2 weeks","6 weeks","24 months"],
+  correct:"3 months",
+  exp:"For dermatophytoses, treatment duration is 1–2 weeks for skin lesions, 6 weeks for hair infection, and <b>3 months for onychomycosis</b> (nail infection)."
+}
+];
+
+// Shuffle helper
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+let current = 0;
+let score = 0;
+let answered = [];   // stores 'correct'/'incorrect' per question
+let shuffledOptions = []; // per question, shuffled option array
+
+// pre-shuffle all
+questions.forEach(q=>{
+  shuffledOptions.push(shuffle(q.options));
+});
+
+const quizArea = document.getElementById('quizArea');
+const qCounter = document.getElementById('qCounter');
+const scorePill = document.getElementById('scorePill');
+const progressFill = document.getElementById('progressFill');
+const resultScreen = document.getElementById('resultScreen');
+const hideAtEnd = document.getElementById('hideAtEnd');
+
+function renderQuestion(){
+  const q = questions[current];
+  const opts = shuffledOptions[current];
+  const alreadyAnswered = answered[current] !== undefined;
+
+  qCounter.textContent = `Question ${current+1} of ${questions.length}`;
+  scorePill.textContent = `Score: ${score}`;
+  progressFill.style.width = ((current)/questions.length*100) + '%';
+
+  const letters = ['A','B','C','D','E'];
+
+  let html = `<div class="card">
+    <div class="qmeta">
+      <span class="qtag">${q.tag}</span>
+      <span>${current+1} / ${questions.length}</span>
+    </div>
+    <div class="qtext">${q.q}</div>
+    <div class="options" id="optionsBox">`;
+
+  opts.forEach((opt,idx)=>{
+    let cls = 'option';
+    if(alreadyAnswered){
+      cls += ' locked';
+      if(opt === q.correct) cls += ' correct';
+      else if(opt === answered[current].picked) cls += ' incorrect';
+      else cls += ' dim';
+    }
+    html += `<button class="${cls}" data-opt="${encodeURIComponent(opt)}" onclick="selectOption(${current}, this)" ${alreadyAnswered?'disabled':''}>
+      <span class="letter">${letters[idx]}</span><span>${opt}</span>
+    </button>`;
+  });
+
+  html += `</div>
+    <div class="explanation ${alreadyAnswered?'show':''}" id="explBox">
+      ${alreadyAnswered ? `<b>${answered[current].correctFlag?'Correct! ✅':'Not quite. ❌'}</b><br>${q.exp}` : ''}
+    </div>
+    <div class="nav-row">
+      <button class="nav-btn" onclick="prevQuestion()" ${current===0?'disabled':''}>← Previous</button>
+      <button class="nav-btn primary" onclick="nextQuestion()" ${!alreadyAnswered?'disabled':''}>${current===questions.length-1?'Finish':'Next →'}</button>
+    </div>
+  </div>`;
+
+  quizArea.innerHTML = html;
+}
+
+function selectOption(qIndex, btnEl){
+  if(answered[qIndex] !== undefined) return;
+  const picked = decodeURIComponent(btnEl.getAttribute('data-opt'));
+  const q = questions[qIndex];
+  const isCorrect = picked === q.correct;
+  answered[qIndex] = {picked: picked, correctFlag: isCorrect};
+  if(isCorrect) score++;
+  renderQuestion();
+}
+
+function nextQuestion(){
+  if(current < questions.length-1){
+    current++;
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function prevQuestion(){
+  if(current>0){
+    current--;
+    renderQuestion();
+  }
+}
+
+function showResults(){
+  hideAtEnd.style.display='none';
+  quizArea.innerHTML='';
+  resultScreen.style.display='block';
+  document.getElementById('finalScore').textContent = `${score}/${questions.length}`;
+  const pct = Math.round(score/questions.length*100);
+  let msg = '';
+  if(pct>=90) msg = "Outstanding! You've mastered mycoses of skin & soft tissue. 🏆";
+  else if(pct>=70) msg = "Great job! Solid grasp of the topic — review the misses. 👍";
+  else if(pct>=50) msg = "Decent effort — a revision round would help solidify concepts. 📖";
+  else msg = "Time for a focused re-read of Chapter 58 — you've got this! 💪";
+  document.getElementById('finalMsg').textContent = `${pct}% correct — ${msg}`;
+
+  const dotsRow = document.getElementById('dotsRow');
+  dotsRow.innerHTML = '';
+  answered.forEach(a=>{
+    const d = document.createElement('div');
+    d.className = 'dot ' + (a.correctFlag ? 'correct':'incorrect');
+    dotsRow.appendChild(d);
+  });
+}
+
+function restartQuiz(){
+  current = 0;
+  score = 0;
+  answered = [];
+  shuffledOptions = questions.map(q=>shuffle(q.options));
+  resultScreen.style.display='none';
+  hideAtEnd.style.display='block';
+  renderQuestion();
+}
+
+renderQuestion();
+</script>
+</body>
+</html>
