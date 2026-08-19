@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cabinet of Clostridia — A Specimen Quiz</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,900;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Special+Elite&display=swap');
+
+  :root{
+    --paper: #f1e7d3;
+    --paper-dark: #e8dabf;
+    --ink: #2e2418;
+    --ink-soft: #4a3c28;
+    --oxblood: #7a2e2a;
+    --oxblood-dark: #5c211e;
+    --brass: #a97e3d;
+    --sage: #4f5d3a;
+    --sage-dark: #3a4629;
+    --card: #faf3e3;
+    --rule: rgba(46,36,24,0.25);
+    --shadow: rgba(46,36,24,0.35);
+  }
+
+  *{ box-sizing: border-box; }
+
+  html,body{
+    margin:0; padding:0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'EB Garamond', serif;
+  }
+
+  body{
+    background-image:
+      radial-gradient(circle at 20% 15%, rgba(169,126,61,0.10), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(122,46,42,0.08), transparent 45%),
+      repeating-linear-gradient(0deg, rgba(46,36,24,0.02) 0px, rgba(46,36,24,0.02) 1px, transparent 1px, transparent 3px);
+    min-height:100vh;
+  }
+
+  .wrap{
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 22px 90px;
+  }
+
+  /* ---------- HEADER ---------- */
+  header{
+    text-align:center;
+    padding-bottom: 34px;
+    margin-bottom: 40px;
+    border-bottom: 3px double var(--ink-soft);
+    position:relative;
+  }
+
+  .eyebrow{
+    font-family: 'Special Elite', monospace;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    font-size: 12px;
+    color: var(--oxblood);
+    margin-bottom: 14px;
+  }
+
+  h1{
+    font-family:'Playfair Display', serif;
+    font-weight: 900;
+    font-size: clamp(34px, 6vw, 54px);
+    margin: 0 0 8px;
+    line-height:1.05;
+    letter-spacing: -0.01em;
+  }
+
+  .subtitle{
+    font-style: italic;
+    color: var(--ink-soft);
+    font-size: 18px;
+    margin: 0 0 18px;
+  }
+
+  .plate-number{
+    font-family:'Special Elite', monospace;
+    font-size: 11px;
+    color: var(--brass);
+    letter-spacing:0.15em;
+  }
+
+  .ornament{
+    width: 120px;
+    height: 14px;
+    margin: 18px auto 0;
+    opacity:0.65;
+  }
+
+  /* ---------- PROGRESS ---------- */
+  .progress-rail{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    justify-content:center;
+    margin: 0 0 42px;
+    font-family:'Special Elite', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+  .progress-track{
+    flex: 1;
+    max-width: 320px;
+    height: 6px;
+    background: var(--paper-dark);
+    border: 1px solid var(--rule);
+    position: relative;
+    border-radius: 2px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background: linear-gradient(90deg, var(--brass), var(--oxblood));
+    transition: width 0.4s ease;
+  }
+
+  /* ---------- QUESTION CARDS ---------- */
+  .card{
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 30px 28px 26px;
+    margin-bottom: 34px;
+    position: relative;
+    box-shadow: 0 3px 0 var(--paper-dark), 0 10px 24px -14px var(--shadow);
+  }
+
+  .card::before{
+    content:"";
+    position:absolute;
+    top:10px; left:10px; right:10px; bottom:10px;
+    border: 1px solid rgba(122,46,42,0.18);
+    pointer-events:none;
+    border-radius: 2px;
+  }
+
+  .card-head{
+    display:flex;
+    align-items:baseline;
+    gap: 14px;
+    margin-bottom: 6px;
+  }
+
+  .qnum{
+    font-family:'Playfair Display', serif;
+    font-weight:900;
+    font-size: 28px;
+    color: var(--oxblood);
+    min-width: 46px;
+  }
+
+  .qmeta{
+    font-family:'Special Elite', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--brass);
+  }
+
+  .qtext{
+    font-size: 20px;
+    line-height:1.45;
+    color: var(--ink);
+    margin: 6px 0 20px 0;
+    font-weight: 500;
+  }
+
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap: 10px;
+  }
+
+  .option{
+    display:flex;
+    align-items:flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+    text-align:left;
+  }
+
+  .option:hover{
+    background: var(--paper-dark);
+    transform: translateX(2px);
+  }
+
+  .option .letter{
+    font-family:'Playfair Display', serif;
+    font-weight:700;
+    font-size: 15px;
+    color: var(--ink-soft);
+    border: 1px solid var(--ink-soft);
+    border-radius: 50%;
+    width: 26px; height:26px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+    background: var(--card);
+  }
+
+  .option .otext{
+    font-size: 16.5px;
+    line-height:1.4;
+    padding-top:2px;
+  }
+
+  .option.correct{
+    background: rgba(79,93,58,0.16);
+    border-color: var(--sage-dark);
+  }
+  .option.correct .letter{
+    background: var(--sage-dark);
+    border-color: var(--sage-dark);
+    color: #f4efe1;
+  }
+
+  .option.incorrect{
+    background: rgba(122,46,42,0.10);
+    border-color: var(--oxblood);
+  }
+  .option.incorrect .letter{
+    background: var(--oxblood);
+    border-color: var(--oxblood);
+    color: #f4efe1;
+  }
+
+  .option.disabled{
+    cursor: default;
+  }
+  .option.dim{
+    opacity: 0.55;
+  }
+
+  .explain-box{
+    margin-top: 8px;
+    padding-left: 38px;
+    font-size: 15px;
+    line-height:1.55;
+    color: var(--ink-soft);
+    display:none;
+    border-left: 2px solid var(--rule);
+    margin-left: 6px;
+    padding-left: 16px;
+  }
+  .explain-box.show{ display:block; }
+
+  .verdict{
+    font-family:'Special Elite', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform:uppercase;
+    margin-bottom: 4px;
+    display:block;
+  }
+  .verdict.right{ color: var(--sage-dark); }
+  .verdict.wrong{ color: var(--oxblood); }
+
+  .summary-note{
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--rule);
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    display:none;
+  }
+  .summary-note.show{ display:block; }
+  .summary-note b{ color: var(--oxblood-dark); }
+
+  /* ---------- FOOTER / SCORE ---------- */
+  .final-plate{
+    text-align:center;
+    margin-top: 50px;
+    padding: 34px 24px;
+    border: 3px double var(--ink-soft);
+    background: var(--card);
+    position:relative;
+  }
+  .final-plate h2{
+    font-family:'Playfair Display', serif;
+    font-size: 30px;
+    margin: 0 0 10px;
+  }
+  .final-plate .score{
+    font-family:'Special Elite', monospace;
+    font-size: 15px;
+    color: var(--oxblood);
+    letter-spacing:0.05em;
+  }
+  .final-plate p{
+    font-style: italic;
+    color: var(--ink-soft);
+    max-width: 460px;
+    margin: 14px auto 0;
+    font-size:16px;
+  }
+
+  .reset-btn{
+    margin-top: 20px;
+    font-family:'Special Elite', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform:uppercase;
+    background: var(--oxblood);
+    color: #f4efe1;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 2px;
+    cursor:pointer;
+    transition: background 0.2s ease;
+  }
+  .reset-btn:hover{ background: var(--oxblood-dark); }
+
+  footer.page-footer{
+    text-align:center;
+    margin-top: 60px;
+    font-family:'Special Elite', monospace;
+    font-size: 11px;
+    color: var(--brass);
+    letter-spacing:0.15em;
+    text-transform:uppercase;
+  }
+
+  @media (max-width: 520px){
+    .qtext{ font-size:18px; }
+    .card{ padding: 22px 16px 20px; }
+    h1{ font-size: 30px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Fig. Plate No. 53 &nbsp;·&nbsp; Section VII</div>
+    <h1>A Cabinet of<br>Clostridia &amp; Gas Gangrene</h1>
+    <p class="subtitle">Being a self-examination on wound-borne anaerobes, their toxins, and their treatment</p>
+    <div class="plate-number">— compiled for private study, pp. 528–531 —</div>
+    <svg class="ornament" viewBox="0 0 120 14"><line x1="0" y1="7" x2="45" y2="7" stroke="#a97e3d" stroke-width="1.5"/><circle cx="60" cy="7" r="4" fill="#7a2e2a"/><line x1="75" y1="7" x2="120" y2="7" stroke="#a97e3d" stroke-width="1.5"/></svg>
+  </header>
+
+  <div class="progress-rail">
+    <span id="progressLabel">0 / 14 answered</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <span id="scoreLabel">Score: 0</span>
+  </div>
+
+  <div id="quizContainer"></div>
+
+  <div class="final-plate" id="finalPlate" style="display:none;">
+    <h2>Specimen Review Complete</h2>
+    <div class="score" id="finalScore"></div>
+    <p id="finalRemark"></p>
+    <button class="reset-btn" onclick="resetQuiz()">Examine Again</button>
+  </div>
+
+  <footer class="page-footer">Robertson's Cooked Meat Broth · Anaerobic Jar · Est. Study Corner</footer>
+
+</div>
+
+<script>
+const questions = [
+  {
+    q: "How do the spores of the genus Bacillus differ from those of Clostridia, according to the text?",
+    options: [
+      { t: "Bacillus spores are terminal, Clostridia spores are always central", correct:false, explain:"The text distinguishes them by bulging, not by position. Clostridia can have central, subterminal, or terminal spores depending on species." },
+      { t: "Clostridia have bulging spores, while Bacillus has non-bulging spores", correct:true, explain:"Correct — this is stated directly: Clostridia are gram-positive bacilli with bulging spores, in contrast to Bacillus, which has non-bulging spores." },
+      { t: "Bacillus spores stain gram-negative, Clostridia spores stain gram-positive", correct:false, explain:"Spore staining isn't the distinguishing feature discussed here — both genera are gram-positive bacilli; the difference highlighted is the bulging vs non-bulging spore shape." },
+      { t: "Clostridia never produce spores in tissue, Bacillus always does", correct:false, explain:"Not producing spores in tissue is a feature noted for C. perfringens specifically (especially gas gangrene strains), not a general Bacillus-vs-Clostridia rule." }
+    ]
+  },
+  {
+    q: "Which spore arrangement is characteristic of Clostridium perfringens?",
+    options: [
+      { t: "Oval and central spores", correct:false, explain:"Oval and central spores are shown as characteristic of Clostridium bifermentans, not C. perfringens." },
+      { t: "Subterminal spores", correct:true, explain:"Correct — Fig. 53.2 shows subterminal spores as the type associated with Clostridium perfringens." },
+      { t: "Spherical and terminal spores", correct:false, explain:"Spherical, terminal spores (the classic 'drumstick' shape) belong to Clostridium tetani." },
+      { t: "Oval and terminal spores", correct:false, explain:"Oval, terminal spores are listed under Clostridium tertium in the same figure." }
+    ]
+  },
+  {
+    q: "MacLennan classified clostridia in Robertson's cooked meat medium by the colour change they cause. What does a saccharolytic species like C. perfringens do to the meat?",
+    options: [
+      { t: "Turns the meat black and produces foul odour", correct:false, explain:"Blackening the meat with foul odour is the effect of proteolytic clostridia, such as C. tetani and C. botulinum types A, B and F." },
+      { t: "Turns the meat pink", correct:true, explain:"Correct — saccharolytic species such as C. perfringens, C. difficile, and C. botulinum types C, D and E turn the meat pink." },
+      { t: "Leaves the meat colour unchanged", correct:false, explain:"Both proteolytic and saccharolytic clostridia are described as producing a visible colour change in the meat — black or pink respectively." },
+      { t: "Dissolves the meat completely, leaving only broth", correct:false, explain:"This isn't the distinguishing reaction described; the classification is based on colour change (black vs pink), not dissolution." }
+    ]
+  },
+  {
+    q: "Which statement correctly describes Clostridium perfringens as an organism?",
+    options: [
+      { t: "It is a motile, gram-negative bacillus that is purely a soil saprophyte", correct:false, explain:"It is described as non-motile and gram-positive, and while it is found as a saprophyte in soil, dust and air, it is also a normal commensal of the human and animal large intestine." },
+      { t: "It is a capsulated, non-motile, gram-positive bacillus, both invasive and toxigenic", correct:true, explain:"Correct — the text describes C. perfringens exactly this way: capsulated, non-motile, gram-positive, and both invasive and toxigenic." },
+      { t: "It produces spores readily in tissues and culture media", correct:false, explain:"The opposite is true — it bears subterminal bulging spores but does NOT produce spores in tissues or in culture media, especially the gas gangrene strains." },
+      { t: "It is exclusively pathogenic and never found as normal flora", correct:false, explain:"C. perfringens (previously C. welchii) is in fact a commensal of the large intestine in humans and animals, not exclusively pathogenic." }
+    ]
+  },
+  {
+    q: "Which of the following is one of the FOUR major toxins produced by C. perfringens?",
+    options: [
+      { t: "Gamma toxin", correct:false, explain:"Gamma is listed among the eight minor toxins, not the four major ones." },
+      { t: "Epsilon toxin", correct:true, explain:"Correct — the four major toxins of C. perfringens are alpha, beta, epsilon, and iota." },
+      { t: "Theta toxin", correct:false, explain:"Theta toxin is discussed separately as one of the two chief virulence toxins in gas gangrene (alongside alpha), but it is not listed among the four 'major toxins' (alpha, beta, epsilon, iota) used for typing." },
+      { t: "Mu toxin", correct:false, explain:"Mu is listed among the eight minor toxins, not the four major ones." }
+    ]
+  },
+  {
+    q: "What is the principal mechanism of action of C. perfringens alpha-toxin?",
+    options: [
+      { t: "It has phospholipase C and sphingomyelinase activity, activating platelet and neutrophil receptors leading to vessel occlusion", correct:true, explain:"Correct — alpha-toxin's phospholipase C/sphingomyelinase activity activates GpIIb/IIIa on platelets and CD11b/CD18 on neutrophils, causing aggregates that occlude blood vessels; it also directly suppresses myocardial contractility." },
+      { t: "It causes marked vasodilation by activating prostacyclin and platelet-activating factor", correct:false, explain:"This vasodilatory action is described for theta-toxin, not alpha-toxin." },
+      { t: "It acts purely as a deoxyribonuclease (DNase)", correct:false, explain:"DNase activity (beta-toxin of DNase type) is a feature attributed to C. septicum's toxins, not C. perfringens alpha-toxin." },
+      { t: "It forms pores in the intestinal mucosal membrane causing food poisoning", correct:false, explain:"That pore-forming action in the gut is the mechanism of C. perfringens type A enterotoxin (coded by the cpe gene), not alpha-toxin." }
+    ]
+  },
+  {
+    q: "According to MacLennan's classification of clostridial wound infections, which term describes wound surface contamination WITHOUT invasion of underlying tissue?",
+    options: [
+      { t: "Anaerobic myositis (gas gangrene)", correct:false, explain:"Anaerobic myositis involves muscle invasion with gas formation and abundant toxin release — the most severe category, not simple contamination." },
+      { t: "Simple wound contamination", correct:true, explain:"Correct — simple wound contamination involves only the wound surface, without invasion of underlying tissue, typically in the absence of devitalized tissue." },
+      { t: "Anaerobic cellulitis", correct:false, explain:"Anaerobic cellulitis involves the fascial plane with minimal toxin release, but without muscle invasion — a step beyond simple surface contamination." },
+      { t: "Enteritis necroticans", correct:false, explain:"Enteritis necroticans (pigbel/darmbrand) is a clostridial enteric infection of the bowel, unrelated to wound classification." }
+    ]
+  },
+  {
+    q: "Enteritis necroticans (also called 'pigbel' or 'darmbrand') is caused by which strain of C. perfringens?",
+    options: [
+      { t: "Type A strains, producing enterotoxin", correct:false, explain:"Type A enterotoxin causes classic food poisoning, not enteritis necroticans." },
+      { t: "Type C strains, producing beta-toxin", correct:true, explain:"Correct — enteritis necroticans is caused by C. perfringens type C strains producing beta-toxin, causing ischemic necrosis of the jejunum with gas in the tissue plane." },
+      { t: "Type D strains, producing epsilon-toxin", correct:false, explain:"Epsilon-toxin producing type D strains are not the cause of enteritis necroticans as described in this text." },
+      { t: "Type E strains, producing iota-toxin", correct:false, explain:"Iota-toxin (type E) is not the toxin implicated in enteritis necroticans here." }
+    ]
+  },
+  {
+    q: "Gas gangrene is formally defined (Oakley, 1954) as:",
+    options: [
+      { t: "A slowly progressive skin infection limited to superficial layers", correct:false, explain:"The definition specifically calls it 'rapidly spreading,' and it involves myonecrosis (muscle death), not a superficial or slow process." },
+      { t: "A rapidly spreading, edematous myonecrosis associated with severely crushed wounds contaminated with pathogenic clostridia", correct:true, explain:"Correct — this is Oakley's 1954 definition almost verbatim, historically also called malignant edema or clostridial myonecrosis." },
+      { t: "A chronic granulomatous reaction to retained foreign material", correct:false, explain:"This describes a different pathological process; gas gangrene is an acute, rapidly spreading necrotizing infection, not a chronic granulomatous one." },
+      { t: "An autoimmune vasculitis triggered by clostridial toxins", correct:false, explain:"Gas gangrene is a direct necrotizing bacterial/toxin-mediated infection, not an autoimmune process." }
+    ]
+  },
+  {
+    q: "Which organism is the single most common established cause of gas gangrene, accounting for about 60% of cases?",
+    options: [
+      { t: "Clostridium novyi", correct:false, explain:"C. novyi is an established agent (along with C. septicum) accounting for about 20–40% of cases combined, but it is not the single most common one." },
+      { t: "Clostridium septicum", correct:false, explain:"C. septicum is grouped with C. novyi as accounting for 20–40% of cases, less than C. perfringens alone." },
+      { t: "Clostridium perfringens", correct:true, explain:"Correct — C. perfringens is the most common established agent of gas gangrene, responsible for about 60% of total cases." },
+      { t: "Clostridium tertium", correct:false, explain:"C. tertium is listed only among the 'probable agents,' which are less commonly implicated overall." }
+    ]
+  },
+  {
+    q: "What is the typical incubation period of gas gangrene caused by C. perfringens?",
+    options: [
+      { t: "10–48 hours", correct:true, explain:"Correct — the incubation period for C. perfringens gas gangrene is given as 10–48 hours, the shortest among the three examples listed." },
+      { t: "2–3 days", correct:false, explain:"2–3 days is the incubation period listed for C. septicum, not C. perfringens." },
+      { t: "5–6 days", correct:false, explain:"5–6 days is the incubation period listed for C. novyi, not C. perfringens." },
+      { t: "10–14 days", correct:false, explain:"This figure isn't given as an incubation period in the text at all — 10–14 days is actually the recommended duration of antibiotic treatment for gas gangrene." }
+    ]
+  },
+  {
+    q: "In laboratory diagnosis of gas gangrene, what does Nagler's reaction demonstrate, and how is it confirmed as specific?",
+    options: [
+      { t: "Double-zone hemolysis on blood agar caused by theta- and alpha-toxin together", correct:false, explain:"That is the description of target/double-zone hemolysis, a separate test — not Nagler's reaction, which uses egg yolk agar." },
+      { t: "Opalescence around the streak line on egg yolk agar due to lecithinase activity of alpha-toxin, inhibited by anti-alpha-toxin", correct:true, explain:"Correct — Nagler's reaction shows opalescence on egg yolk agar (or serum-containing media) from alpha-toxin's lecithinase activity, and this opalescence is specifically inhibited when anti-alpha-toxin is incorporated into the medium, confirming specificity." },
+      { t: "An arrow-shaped zone of enhanced hemolysis toward a Streptococcus agalactiae streak", correct:false, explain:"This arrow-shaped enhanced hemolysis describes the Reverse CAMP test, not Nagler's reaction." },
+      { t: "Vigorous gas and clot formation in litmus milk", correct:false, explain:"This describes the 'stormy clot reaction' in litmus milk, a different identification test entirely." }
+    ]
+  },
+  {
+    q: "The 'stormy clot reaction' associated with C. perfringens is observed in which medium, and why does it occur?",
+    options: [
+      { t: "Robertson's cooked meat broth, due to proteolysis of meat particles", correct:false, explain:"Robertson's cooked meat broth is used as a culture/transport medium and for MacLennan's black/pink classification, but the stormy clot reaction itself is a litmus milk phenomenon." },
+      { t: "Litmus milk, due to fermentation of lactose producing acid and vigorous gas", correct:true, explain:"Correct — in litmus milk, C. perfringens ferments lactose to produce acid (clotting the milk) and vigorous gas, disrupting the clot — the classic 'stormy clot reaction.'" },
+      { t: "Egg yolk agar, due to lecithinase splitting egg yolk lipids", correct:false, explain:"Egg yolk agar with lecithinase activity produces the opalescence of Nagler's reaction, not the stormy clot phenomenon." },
+      { t: "Blood agar, due to complete and incomplete hemolysis zones", correct:false, explain:"Blood agar is where target (double-zone) hemolysis is observed — a different diagnostic feature from the stormy clot reaction." }
+    ]
+  },
+  {
+    q: "Which of the following is the MOST crucial and first step in the management of gas gangrene?",
+    options: [
+      { t: "Hyperbaric oxygen therapy", correct:false, explain:"Hyperbaric oxygen is a useful adjunct that may kill obligate anaerobic clostridia, but it is not described as the most crucial step, and it has no effect on aerotolerant species like C. septicum." },
+      { t: "Passive immunization with anti-alpha-toxin antiserum", correct:false, explain:"Passive immunization is listed as one component of treatment, but it is not identified as the most crucial or first step." },
+      { t: "Early surgical debridement, widely resecting devitalized tissue", correct:true, explain:"Correct — early surgical debridement is explicitly called the most crucial step, removing devitalized tissue to eliminate the anaerobic environment; wound closure is delayed 5–6 days until infection clears." },
+      { t: "Combination antibiotic therapy with penicillin and clindamycin alone, without surgery", correct:false, explain:"Antibiotics (penicillin plus clindamycin for 10–14 days) are an essential part of treatment, but surgical debridement is specifically ranked as the most crucial step, not antibiotics used alone." }
+    ]
+  }
+];
+
+let answered = 0;
+let score = 0;
+const total = questions.length;
+
+const container = document.getElementById('quizContainer');
+const progressFill = document.getElementById('progressFill');
+const progressLabel = document.getElementById('progressLabel');
+const scoreLabel = document.getElementById('scoreLabel');
+const finalPlate = document.getElementById('finalPlate');
+const finalScore = document.getElementById('finalScore');
+const finalRemark = document.getElementById('finalRemark');
+
+function letterFor(i){ return String.fromCharCode(65+i); }
+
+function buildQuiz(){
+  container.innerHTML = '';
+  questions.forEach((q, qi) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.id = 'card-' + qi;
+
+    const head = document.createElement('div');
+    head.className = 'card-head';
+    head.innerHTML = `<span class="qnum">${String(qi+1).padStart(2,'0')}</span><span class="qmeta">Specimen Item</span>`;
+    card.appendChild(head);
+
+    const qtext = document.createElement('div');
+    qtext.className = 'qtext';
+    qtext.textContent = q.q;
+    card.appendChild(qtext);
+
+    const optsWrap = document.createElement('div');
+    optsWrap.className = 'options';
+
+    q.options.forEach((opt, oi) => {
+      const optDiv = document.createElement('div');
+      optDiv.className = 'option';
+      optDiv.innerHTML = `<span class="letter">${letterFor(oi)}</span><span class="otext">${opt.t}</span>`;
+
+      const explainBox = document.createElement('div');
+      explainBox.className = 'explain-box';
+      explainBox.innerHTML = `<span class="verdict ${opt.correct ? 'right':'wrong'}">${opt.correct ? '✓ Correct' : '✗ Not quite'}</span>${opt.explain}`;
+
+      optDiv.addEventListener('click', () => {
+        if (optDiv.classList.contains('locked')) return;
+        selectOption(qi, oi, optDiv, explainBox, optsWrap, card);
+      });
+
+      const holder = document.createElement('div');
+      holder.appendChild(optDiv);
+      holder.appendChild(explainBox);
+      optsWrap.appendChild(holder);
+    });
+
+    card.appendChild(optsWrap);
+    container.appendChild(card);
+  });
+}
+
+function selectOption(qi, oi, optDiv, explainBox, optsWrap, card){
+  const opt = questions[qi].options[oi];
+  const allOptionDivs = optsWrap.querySelectorAll('.option');
+  const allExplainBoxes = optsWrap.querySelectorAll('.explain-box');
+
+  allOptionDivs.forEach(o => { o.classList.add('locked','disabled'); });
+
+  if(opt.correct){
+    optDiv.classList.add('correct');
+    score++;
+  } else {
+    optDiv.classList.add('incorrect');
+    allOptionDivs.forEach((o, idx) => {
+      if(questions[qi].options[idx].correct){
+        o.classList.add('correct');
+        allExplainBoxes[idx].classList.add('show');
+      }
+    });
+  }
+  explainBox.classList.add('show');
+
+  allOptionDivs.forEach((o, idx) => {
+    if(idx !== oi && !questions[qi].options[idx].correct){
+      o.classList.add('dim');
+    }
+  });
+
+  answered++;
+  updateProgress();
+  if(answered === total){
+    setTimeout(showFinal, 350);
+  }
+}
+
+function updateProgress(){
+  progressLabel.textContent = `${answered} / ${total} answered`;
+  scoreLabel.textContent = `Score: ${score}`;
+  progressFill.style.width = (answered/total*100) + '%';
+}
+
+function showFinal(){
+  finalPlate.style.display = 'block';
+  finalScore.textContent = `${score} out of ${total} correct`;
+  let remark = '';
+  const pct = score/total;
+  if(pct === 1) remark = "A flawless specimen review — you know this cabinet cover to cover.";
+  else if(pct >= 0.75) remark = "A strong showing. Revisit the toxins and lab-diagnosis tests once more to seal it.";
+  else if(pct >= 0.5) remark = "A fair grasp of the ward. Re-read the pathogenesis and clinical manifestations sections.";
+  else remark = "Time to return to the archive — reread pages 528–531 and try again.";
+  finalRemark.textContent = remark;
+  finalPlate.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function resetQuiz(){
+  answered = 0;
+  score = 0;
+  finalPlate.style.display = 'none';
+  buildQuiz();
+  updateProgress();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+buildQuiz();
+updateProgress();
+</script>
+
+</body>
+</html>
